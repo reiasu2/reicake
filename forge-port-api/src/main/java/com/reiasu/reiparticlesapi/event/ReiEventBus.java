@@ -1,21 +1,5 @@
-/*
- * Copyright (C) 2025 Reiasu
- *
- * This file is part of ReiParticlesAPI.
- *
- * ReiParticlesAPI is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, version 3 of the License.
- *
- * ReiParticlesAPI is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with ReiParticlesAPI. If not, see <https://www.gnu.org/licenses/>.
- */
 // SPDX-License-Identifier: LGPL-3.0-only
+// Copyright (C) 2025 Reiasu
 package com.reiasu.reiparticlesapi.event;
 
 import com.reiasu.reiparticlesapi.annotations.events.EventHandler;
@@ -24,11 +8,10 @@ import com.reiasu.reiparticlesapi.event.api.ReiEvent;
 import com.reiasu.reiparticlesapi.event.api.EventExecutor;
 import com.reiasu.reiparticlesapi.event.api.EventInterruptible;
 import com.reiasu.reiparticlesapi.event.api.EventPriority;
+import com.reiasu.reiparticlesapi.reflect.ReiAPIScanner;
 import com.mojang.logging.LogUtils;
 import org.slf4j.Logger;
 
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -44,7 +27,7 @@ public final class ReiEventBus {
     public static final ReiEventBus INSTANCE = new ReiEventBus();
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    private final Map<String, Set<String>> pendingListenersByMod = new ConcurrentHashMap<>();
+    private final Map<String, Set<String>> pendingPackagesByMod = new ConcurrentHashMap<>();
     private final Map<Class<? extends ReiEvent>, EnumMap<EventPriority, CopyOnWriteArrayList<EventExecutor>>> handlerLists =
             new ConcurrentHashMap<>();
     private final AtomicBoolean initialized = new AtomicBoolean(false);
@@ -52,36 +35,46 @@ public final class ReiEventBus {
     private ReiEventBus() {
     }
 
-    public void appendListenerTarget(String modId, String target) {
-        if (modId == null || modId.isBlank() || target == null || target.isBlank()) {
+    public void appendListenerTarget(String modId, String packageName) {
+        if (modId == null || modId.isBlank() || packageName == null || packageName.isBlank()) {
             return;
         }
-        pendingListenersByMod.computeIfAbsent(modId, ignored -> ConcurrentHashMap.newKeySet()).add(target);
+        pendingPackagesByMod.computeIfAbsent(modId, ignored -> ConcurrentHashMap.newKeySet()).add(packageName);
+        ReiAPIScanner.registerPackage(packageName);
     }
 
     public void initListeners() {
         if (!initialized.compareAndSet(false, true)) {
             return;
         }
-        for (Map.Entry<String, Set<String>> entry : pendingListenersByMod.entrySet()) {
-            String modId = entry.getKey();
-            for (String target : entry.getValue()) {
-                registerListenerClassName(modId, target);
-            }
-        }
+        scanListeners();
     }
 
     /**
-     * No-op on Forge: classpath scanning for event listeners is not yet implemented.
-     * Listeners must be registered explicitly via {@link #appendListenerTarget(String, String)}
-     * or {@link #registerAnnotatedClass(Class)}.
+     * Scans registered packages for {@link EventListener @EventListener} annotated classes
+     * using ClassGraph and registers them as event listeners.
      * <p>
-     * This method exists for API compatibility with NeoForge/Fabric ports that
-     * perform automatic classpath scanning.
+     * If no packages have been registered via {@link ReiAPIScanner#registerPackage(String)},
+     * this is effectively a no-op and logs an info message suggesting explicit registration.
      */
     public void scanListeners() {
-        // TODO: implement ClassGraph-based listener scanning for NeoForge/Fabric ports
-        LOGGER.info("scanListeners() is a no-op on Forge. Use registerAnnotatedClass() or registerListenerInstance() instead.");
+        ReiAPIScanner scanner = ReiAPIScanner.INSTANCE;
+        if (scanner.getScannedPackageCount() == 0) {
+            LOGGER.info("scanListeners(): no packages registered for scanning. "
+                    + "Use registerAnnotatedClass() or registerListenerInstance() for explicit registration.");
+            return;
+        }
+        scanner.scan();
+        int count = 0;
+        for (Class<?> clazz : scanner.getClassesWithAnnotation(EventListener.class)) {
+            try {
+                registerAnnotatedClass(clazz);
+                count++;
+            } catch (Throwable t) {
+                LOGGER.error("scanListeners(): failed to register {}", clazz.getName(), t);
+            }
+        }
+        LOGGER.info("scanListeners(): discovered and registered {} @EventListener classes", count);
     }
 
     public void registerAnnotatedClass(Class<?> listenerClass) {
@@ -134,7 +127,7 @@ public final class ReiEventBus {
 
     public void clear() {
         handlerLists.clear();
-        pendingListenersByMod.clear();
+        pendingPackagesByMod.clear();
         initialized.set(false);
     }
 
@@ -173,15 +166,6 @@ public final class ReiEventBus {
         return event;
     }
 
-    private void registerListenerClassName(String modId, String target) {
-        try {
-            Class<?> listenerClass = Class.forName(target);
-            registerListenerClass(modId, listenerClass);
-        } catch (Throwable t) {
-            LOGGER.error("Failed to register listener class {} for mod {}", target, modId, t);
-        }
-    }
-
     private void registerHandler(
             String modId,
             Object listener,
@@ -193,8 +177,7 @@ public final class ReiEventBus {
                 handlerLists.computeIfAbsent(eventType, ignored -> new EnumMap<>(EventPriority.class));
         CopyOnWriteArrayList<EventExecutor> executors =
                 byPriority.computeIfAbsent(priority, ignored -> new CopyOnWriteArrayList<>());
-        MethodHandle handle = toMethodHandle(listener, method);
-        executors.add(new EventExecutor(modId, event -> invokeHandle(handle, event)));
+        executors.add(new EventExecutor(modId, event -> invokeMethod(listener, method, event)));
     }
 
     private static Object createListenerInstance(Class<?> listenerClass) {
@@ -222,17 +205,9 @@ public final class ReiEventBus {
         }
     }
 
-    private static MethodHandle toMethodHandle(Object listener, Method method) {
+    private static void invokeMethod(Object listener, Method method, ReiEvent event) {
         try {
-            return MethodHandles.lookup().unreflect(method).bindTo(listener);
-        } catch (IllegalAccessException e) {
-            throw new IllegalStateException("Cannot create MethodHandle for " + method, e);
-        }
-    }
-
-    private static void invokeHandle(MethodHandle handle, ReiEvent event) {
-        try {
-            handle.invoke(event);
+            method.invoke(listener, event);
         } catch (Throwable t) {
             throw new RuntimeException(t);
         }

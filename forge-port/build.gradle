@@ -71,20 +71,6 @@ repositories {
     mavenCentral()
 }
 
-def reiParticlesApiJarCandidates = [
-        // Prefer local dev jar first for test/dev runtime; install-dir jar may be reobfuscated.
-        file('../forge-port-api/build/libs/reiparticlesapi-1.0-SNAPSHOT-forge-port.jar'),
-]
-def reiParticlesApiJar = reiParticlesApiJarCandidates.find { it.exists() }
-if (reiParticlesApiJar == null) {
-    throw new GradleException("Missing reiparticlesapi jar. Expected one of: ${reiParticlesApiJarCandidates}")
-}
-def reiParticlesApiDevOutputs = [
-        file('../forge-port-api/build/classes/java/main'),
-        file('../forge-port-api/build/resources/main')
-]
-def hasReiParticlesApiDevOutputs = reiParticlesApiDevOutputs.every { it.exists() }
-
 // Sync task: merge API classes + processed resources into a single directory for dev runtime
 tasks.register('prepareReiApiDev', Sync) {
     from '../forge-port-api/build/classes/java/main'
@@ -97,8 +83,9 @@ tasks.register('prepareReiApiDev', Sync) {
 
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
-    compileOnly files(hasReiParticlesApiDevOutputs ? reiParticlesApiDevOutputs : [reiParticlesApiJar])
-    testImplementation files(hasReiParticlesApiDevOutputs ? reiParticlesApiDevOutputs : [reiParticlesApiJar])
+    // Resolved via composite build (see settings.gradle includeBuild)
+    compileOnly 'com.reiasu.reiparticlesapi:reiparticlesapi:1.0-SNAPSHOT-forge-port'
+    testImplementation 'com.reiasu.reiparticlesapi:reiparticlesapi:1.0-SNAPSHOT-forge-port'
     testImplementation platform('org.junit:junit-bom:5.11.4')
     testImplementation 'org.junit.jupiter:junit-jupiter'
 }
@@ -124,8 +111,6 @@ processResources {
 
 tasks.withType(Test).configureEach {
     useJUnitPlatform()
-    // Prevent obfuscated API jar from shadowing deobf classes during unit tests.
-    classpath = classpath.filter { it != reiParticlesApiJar }
 }
 
 jar {

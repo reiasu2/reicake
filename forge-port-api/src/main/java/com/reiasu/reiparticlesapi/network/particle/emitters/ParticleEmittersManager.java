@@ -1,21 +1,5 @@
-/*
- * Copyright (C) 2025 Reiasu
- *
- * This file is part of ReiParticlesAPI.
- *
- * ReiParticlesAPI is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, version 3 of the License.
- *
- * ReiParticlesAPI is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with ReiParticlesAPI. If not, see <https://www.gnu.org/licenses/>.
- */
 // SPDX-License-Identifier: LGPL-3.0-only
+// Copyright (C) 2025 Reiasu
 package com.reiasu.reiparticlesapi.network.particle.emitters;
 
 import com.reiasu.reiparticlesapi.event.ReiEventBus;
@@ -45,9 +29,16 @@ import java.util.function.Function;
 /**
  * Central manager for server-side and client-side particle emitters.
  * <p>
+ * <b>Threading model:</b> All server-side mutation ({@link #spawnEmitters},
+ * {@link #tickAll()}, {@link #removeEmitters}) happens on the main server thread.
+ * {@code EMITTERS} is guarded by {@code synchronized} for safety, but concurrent
+ * containers ({@code VISIBLE}, {@code CLIENT_EMITTERS}) are used only because they
+ * may be read from packet-handler threads. Do not call mutation methods off the
+ * server thread.
+ * <p>
  * Server side: emitters are added via {@link #spawnEmitters}, ticked each server tick
  * by {@link #tickAll()}, and automatically synchronized to nearby players with
- * distance-based LOD throttling.
+ * distance-based LOD throttling and player-sharding.
  * <p>
  * Client side: emitters received from the server are stored and ticked via
  * {@link #tickClient()}.
@@ -67,6 +58,13 @@ public final class ParticleEmittersManager {
     private static final int PACKETS_PER_TICK_LIMIT = 512;
     private static long visibilityTick = 0;
     private static final int PLAYER_SHARD_COUNT = 4;
+
+    // ---- Per-tick statistics (reset each tick, snapshot for debug) ----
+    private static int statSynced;
+    private static int statSkippedLod;
+    private static int statSkippedShard;
+    private static int statThrottled;
+    private static volatile int[] lastTickStats = new int[4];
 
     private ParticleEmittersManager() {
     }
@@ -98,10 +96,6 @@ public final class ParticleEmittersManager {
         if (id == null) {
             return null;
         }
-        return EmitterRegistry.INSTANCE.getDecoder(id);
-    }
-
-    public static Function<FriendlyByteBuf, ParticleEmitters> getCodecFromRawID(int id) {
         return EmitterRegistry.INSTANCE.getDecoder(id);
     }
 
@@ -159,8 +153,19 @@ public final class ParticleEmittersManager {
         }
     }
 
-    /** Ticks all server-side emitters, updates visibility, and prunes disconnected players. Call once per server tick. */
+    /**
+     * Returns the last tick's statistics: [synced, skippedLod, skippedShard, throttled].
+     */
+    public static int[] getLastTickStats() {
+        return lastTickStats.clone();
+    }
+
     public static void tickAll() {
+        lastTickStats = new int[]{statSynced, statSkippedLod, statSkippedShard, statThrottled};
+        statSynced = 0;
+        statSkippedLod = 0;
+        statSkippedShard = 0;
+        statThrottled = 0;
         packetsThisTick.set(0);
         long tick = visibilityTick++;
         synchronized (EMITTERS) {
@@ -187,6 +192,7 @@ public final class ParticleEmittersManager {
         for (int i = 0; i < players.size(); i++) {
             // Shard players across ticks to reduce per-tick cost from E*P to E*(P/N)
             if (i % PLAYER_SHARD_COUNT != (int)(tick % PLAYER_SHARD_COUNT)) {
+                statSkippedShard++;
                 continue;
             }
             ServerPlayer player = players.get(i);
@@ -210,6 +216,7 @@ public final class ParticleEmittersManager {
                 double range = emitters.getVisibleRange();
                 int lodInterval = computeLodInterval(dist, range);
                 if (lodInterval > 1 && (emitters.getTick() % lodInterval) != 0) {
+                    statSkippedLod++;
                     continue;
                 }
                 sendChange(emitters, player);
@@ -244,14 +251,16 @@ public final class ParticleEmittersManager {
 
     private static void sendChange(ParticleEmitters emitters, ServerPlayer player) {
         if (packetsThisTick.incrementAndGet() > APIConfig.INSTANCE.getPacketsPerTickLimit()) {
+            statThrottled++;
             return;
         }
-        int registryId = EmitterRegistry.INSTANCE.getId(emitters.getEmittersID());
-        if (registryId < 0) {
+        statSynced++;
+        ResourceLocation key = emitters.getEmittersID();
+        if (key == null || EmitterRegistry.INSTANCE.getDecoder(key) == null) {
             return;
         }
         PacketParticleEmittersS2C packet = new PacketParticleEmittersS2C(
-                registryId,
+                key,
                 emitters.encodeToBytes(),
                 PacketParticleEmittersS2C.PacketType.CHANGE_OR_CREATE
         );
@@ -269,12 +278,12 @@ public final class ParticleEmittersManager {
     private static void removeView(ServerPlayer player, ParticleEmitters emitters) {
         Set<UUID> visibleSet = VISIBLE.computeIfAbsent(player.getUUID(), ignored -> ConcurrentHashMap.newKeySet());
         visibleSet.remove(emitters.getUuid());
-        int registryId = EmitterRegistry.INSTANCE.getId(emitters.getEmittersID());
-        if (registryId < 0) {
+        ResourceLocation key = emitters.getEmittersID();
+        if (key == null || EmitterRegistry.INSTANCE.getDecoder(key) == null) {
             return;
         }
         PacketParticleEmittersS2C packet = new PacketParticleEmittersS2C(
-                registryId,
+                key,
                 emitters.encodeToBytes(),
                 PacketParticleEmittersS2C.PacketType.REMOVE
         );
@@ -294,12 +303,12 @@ public final class ParticleEmittersManager {
             }
             ServerPlayer player = level.getServer().getPlayerList().getPlayer(playerId);
             if (player != null) {
-                int registryId = EmitterRegistry.INSTANCE.getId(emitters.getEmittersID());
-                if (registryId < 0) {
+                ResourceLocation rkey = emitters.getEmittersID();
+                if (rkey == null || EmitterRegistry.INSTANCE.getDecoder(rkey) == null) {
                     continue;
                 }
                 PacketParticleEmittersS2C packet = new PacketParticleEmittersS2C(
-                        registryId,
+                        rkey,
                         emitters.encodeToBytes(),
                         PacketParticleEmittersS2C.PacketType.REMOVE
                 );

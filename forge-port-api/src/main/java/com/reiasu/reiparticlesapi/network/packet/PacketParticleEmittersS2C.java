@@ -1,32 +1,17 @@
-/*
- * Copyright (C) 2025 Reiasu
- *
- * This file is part of ReiParticlesAPI.
- *
- * ReiParticlesAPI is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, version 3 of the License.
- *
- * ReiParticlesAPI is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with ReiParticlesAPI. If not, see <https://www.gnu.org/licenses/>.
- */
 // SPDX-License-Identifier: LGPL-3.0-only
+// Copyright (C) 2025 Reiasu
 package com.reiasu.reiparticlesapi.network.packet;
 
 import com.reiasu.reiparticlesapi.network.packet.client.listener.ClientParticleEmittersPacketHandler;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
-public record PacketParticleEmittersS2C(int emitterID, byte[] emitterData, PacketType type) {
+public record PacketParticleEmittersS2C(ResourceLocation emitterKey, byte[] emitterData, PacketType type) {
     public enum PacketType {
         CHANGE_OR_CREATE(0),
         REMOVE(1);
@@ -52,18 +37,18 @@ public record PacketParticleEmittersS2C(int emitterID, byte[] emitterData, Packe
 
     public static void encode(PacketParticleEmittersS2C packet, FriendlyByteBuf buf) {
         buf.writeVarInt(packet.type.getId());
-        buf.writeVarInt(packet.emitterID);
+        buf.writeResourceLocation(packet.emitterKey);
         buf.writeVarInt(packet.emitterData.length);
         buf.writeBytes(packet.emitterData);
     }
 
     public static PacketParticleEmittersS2C decode(FriendlyByteBuf buf) {
         PacketType packetType = PacketType.fromID(buf.readVarInt());
-        int emitterID = buf.readVarInt();
+        ResourceLocation key = buf.readResourceLocation();
         int size = buf.readVarInt();
         byte[] data = new byte[size];
         buf.readBytes(data);
-        return new PacketParticleEmittersS2C(emitterID, data, packetType);
+        return new PacketParticleEmittersS2C(key, data, packetType);
     }
 
     public static void handle(PacketParticleEmittersS2C packet, Supplier<NetworkEvent.Context> contextSupplier) {

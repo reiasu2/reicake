@@ -1,148 +1,120 @@
-/*
- * Copyright (C) 2025 Reiasu
- *
- * This file is part of ReiParticlesAPI.
- *
- * ReiParticlesAPI is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, version 3 of the License.
- *
- * ReiParticlesAPI is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with ReiParticlesAPI. If not, see <https://www.gnu.org/licenses/>.
- */
 // SPDX-License-Identifier: LGPL-3.0-only
+// Copyright (C) 2025 Reiasu
 package com.reiasu.reiparticlesapi;
 
 import com.reiasu.reiparticlesapi.event.ReiEventBus;
 import com.reiasu.reiparticlesapi.event.api.ReiEvent;
+import com.reiasu.reiparticlesapi.network.particle.emitters.ParticleEmittersManager;
+import com.reiasu.reiparticlesapi.scheduler.ReiScheduler;
 import com.reiasu.reiparticlesapi.test.SimpleTestGroupBuilder;
 import com.reiasu.reiparticlesapi.test.TestManager;
 import com.mojang.logging.LogUtils;
 import net.minecraft.server.level.ServerPlayer;
 import org.slf4j.Logger;
 
-import java.util.Comparator;
-import java.util.concurrent.PriorityBlockingQueue;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Main entry point for the ReiParticles API.
  * <p>
  * Provides lifecycle management (initialization, scanner loading, hook registration),
- * a tick-driven {@link Scheduler} for deferred tasks, and convenience methods for
- * the {@link com.reiasu.reiparticlesapi.event.ReiEventBus ReiEventBus} event system.
+ * a {@link com.reiasu.reiparticlesapi.scheduler.ReiScheduler ReiScheduler} for deferred tasks,
+ * and convenience methods for the {@link com.reiasu.reiparticlesapi.event.ReiEventBus ReiEventBus}
+ * event system.
  * <p>
  * Typical mod integration:
  * <pre>{@code
  * // During mod construction
  * ReiParticlesAPI.init();
- * ReiParticlesAPI.INSTANCE.loadScannerPackages();
  *
- * // Register event listeners
+ * // Register event listener packages (scanned via ClassGraph)
  * ReiParticlesAPI.INSTANCE.appendEventListenerTarget("mymod", "com.example.mymod.listeners");
  * ReiParticlesAPI.INSTANCE.initEventListeners();
  *
- * // In server tick handler
- * ReiParticlesAPI.scheduler.tick();
+ * // Schedule a deferred task (20 ticks = 1 second)
+ * ReiParticlesAPI.reiScheduler().runTask(20, () -> { ... });
  * }</pre>
  */
 public final class ReiParticlesAPI {
     public static final ReiParticlesAPI INSTANCE = new ReiParticlesAPI();
+    /** @deprecated Use {@link #reiScheduler()} for new code. This scheduler only supports one-shot server tasks. */
+    @Deprecated
     public static final Scheduler scheduler = new Scheduler();
     private static final Logger LOGGER = LogUtils.getLogger();
-    private static final AtomicBoolean INITIALIZED = new AtomicBoolean(false);
-    private static final AtomicBoolean SCANNERS_LOADED = new AtomicBoolean(false);
-    private static final AtomicBoolean TEST_HOOKS_REGISTERED = new AtomicBoolean(false);
-    private static final AtomicBoolean STYLE_HOOKS_REGISTERED = new AtomicBoolean(false);
-    private static final AtomicBoolean KEY_HOOKS_REGISTERED = new AtomicBoolean(false);
+    private static boolean initialized;
+    private static boolean scannersLoaded;
+    private static boolean testHooksRegistered;
 
     private ReiParticlesAPI() {
     }
 
     /** Initializes the API. Safe to call multiple times; only the first call takes effect. */
     public static void init() {
-        if (INITIALIZED.compareAndSet(false, true)) {
-            LOGGER.info("ReiParticlesAPI init completed");
-        } else {
+        if (initialized) {
             LOGGER.debug("init() called again — already initialized, skipping");
+            return;
         }
+        initialized = true;
+        ParticleEmittersManager.registerBuiltinCodecs();
+        LOGGER.info("ReiParticlesAPI init completed");
     }
 
     /** Returns {@code true} if {@link #init()} has been called. */
     public static boolean isInitialized() {
-        return INITIALIZED.get();
+        return initialized;
     }
 
     /** Scans and initializes event listener packages. Call once after all listener targets are registered. */
     public void loadScannerPackages() {
-        if (SCANNERS_LOADED.compareAndSet(false, true)) {
-            if (!INITIALIZED.get()) {
-                LOGGER.warn("loadScannerPackages() called before init() — call init() first");
-            }
-            LOGGER.info("ReiParticlesAPI scanner packages loaded");
-            ReiEventBus.INSTANCE.scanListeners();
-            ReiEventBus.INSTANCE.initListeners();
-        } else {
+        if (scannersLoaded) {
             LOGGER.debug("loadScannerPackages() called again — already loaded, skipping");
+            return;
         }
+        scannersLoaded = true;
+        if (!initialized) {
+            LOGGER.warn("loadScannerPackages() called before init() — call init() first");
+        }
+        LOGGER.info("ReiParticlesAPI scanner packages loaded");
+        ReiEventBus.INSTANCE.scanListeners();
+        ReiEventBus.INSTANCE.initListeners();
     }
 
     public boolean scannersLoaded() {
-        return SCANNERS_LOADED.get();
+        return scannersLoaded;
     }
 
     public void registerTest() {
-        if (TEST_HOOKS_REGISTERED.compareAndSet(false, true)) {
-            TestManager.INSTANCE.register("api-test-group-builder", user -> buildSmokeTestGroup(user));
-            LOGGER.info("ReiParticlesAPI test hooks registered");
-        }
+        if (testHooksRegistered) return;
+        testHooksRegistered = true;
+        TestManager.INSTANCE.register("api-test-group-builder", user -> buildSmokeTestGroup(user));
+        LOGGER.info("ReiParticlesAPI test hooks registered");
     }
 
     public boolean testHooksRegistered() {
-        return TEST_HOOKS_REGISTERED.get();
+        return testHooksRegistered;
     }
 
+    /** No-op stub — particle style registration is not yet implemented. */
     public void registerParticleStyles() {
-        if (STYLE_HOOKS_REGISTERED.compareAndSet(false, true)) {
-            // TODO: add actual style registration logic (e.g., load from registry)
-            LOGGER.info("ReiParticlesAPI particle styles registered");
-        }
     }
 
-    public boolean styleHooksRegistered() {
-        return STYLE_HOOKS_REGISTERED.get();
-    }
-
+    /** No-op stub — key binding registration is not yet implemented. */
     public void registerKeyBindings() {
-        if (KEY_HOOKS_REGISTERED.compareAndSet(false, true)) {
-            // TODO: add actual key binding registration logic
-            LOGGER.info("ReiParticlesAPI key hooks registered");
-        }
-    }
-
-    public boolean keyHooksRegistered() {
-        return KEY_HOOKS_REGISTERED.get();
     }
 
     /**
-     * Registers a package for event listener scanning.
+     * Registers a package for {@link com.reiasu.reiparticlesapi.annotations.events.EventListener @EventListener}
+     * class scanning. The package is scanned via ClassGraph when {@link #initEventListeners()} is called.
      *
-     * @param modId  the mod identifier
-     * @param target fully-qualified package name to scan for {@code @ReiAutoRegister} listeners
+     * @param modId       the mod identifier
+     * @param packageName fully-qualified package name to scan (e.g. {@code "com.example.mymod.listeners"})
      */
-    public void appendEventListenerTarget(String modId, String target) {
-        ReiEventBus.INSTANCE.appendListenerTarget(modId, target);
+    public void appendEventListenerTarget(String modId, String packageName) {
+        ReiEventBus.INSTANCE.appendListenerTarget(modId, packageName);
     }
 
     /** Initializes all registered event listeners. Call after all targets have been appended. */
     public void initEventListeners() {
-        if (!SCANNERS_LOADED.get()) {
+        if (!scannersLoaded) {
             LOGGER.debug("initEventListeners() called before loadScannerPackages() — Forge scanning is a no-op, listeners must be registered explicitly");
         }
         ReiEventBus.INSTANCE.initListeners();
@@ -170,42 +142,36 @@ public final class ReiParticlesAPI {
     }
 
     /**
-     * Tick-driven scheduler that runs tasks after a specified number of
-     * actual server ticks, avoiding 50ms approximation drift under lag.
-     * <p>
-     * Call {@link #tick()} once per server tick from the mod's tick handler.
+     * Returns the primary scheduler. Supports one-shot, repeating, max-tick,
+     * cancel predicates, and finish callbacks. Ticked on both server and client.
+     *
+     * @see com.reiasu.reiparticlesapi.scheduler.ReiScheduler
      */
+    public static ReiScheduler reiScheduler() {
+        return ReiScheduler.INSTANCE;
+    }
+
+    /**
+     * Legacy scheduler stub that delegates all calls to {@link ReiScheduler}.
+     *
+     * @deprecated Use {@link #reiScheduler()} instead. This class is a thin delegate
+     *             and will be removed in a future version.
+     */
+    @Deprecated
     public static final class Scheduler {
-        private final AtomicLong currentTick = new AtomicLong(0);
-        private final PriorityBlockingQueue<ScheduledTask> tasks =
-                new PriorityBlockingQueue<>(16, Comparator.comparingLong(ScheduledTask::executionTick));
 
+        /** Delegates to {@link ReiScheduler#runTask(int, Runnable)}. */
         public void runTask(int ticks, Runnable task) {
-            long executionTick = currentTick.get() + Math.max(1, ticks);
-            tasks.add(new ScheduledTask(executionTick, task));
+            ReiScheduler.INSTANCE.runTask(Math.max(1, ticks), task);
         }
 
-        // Note: tick() is called from the single server-tick thread only.
-        // PriorityBlockingQueue keeps tasks sorted by executionTick, so we
-        // only drain tasks that are due — no need to re-enqueue future tasks.
+        /** No-op — {@link ReiScheduler} is ticked by the API tick handler. */
         public void tick() {
-            long now = currentTick.incrementAndGet();
-            ScheduledTask entry;
-            while ((entry = tasks.peek()) != null && now >= entry.executionTick) {
-                tasks.poll();
-                try {
-                    entry.task.run();
-                } catch (Exception e) {
-                    LOGGER.warn("Scheduled task failed", e);
-                }
-            }
         }
 
+        /** No-op — lifecycle managed by {@link ReiScheduler}. */
         public void shutdown() {
-            tasks.clear();
         }
-
-        private record ScheduledTask(long executionTick, Runnable task) {}
     }
 
     private static SimpleTestGroupBuilder buildSmokeTestGroup(ServerPlayer user) {

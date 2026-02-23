@@ -1,21 +1,5 @@
-/*
- * Copyright (C) 2025 Reiasu
- *
- * This file is part of ReiParticlesAPI.
- *
- * ReiParticlesAPI is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, version 3 of the License.
- *
- * ReiParticlesAPI is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with ReiParticlesAPI. If not, see <https://www.gnu.org/licenses/>.
- */
 // SPDX-License-Identifier: LGPL-3.0-only
+// Copyright (C) 2025 Reiasu
 package com.reiasu.reiparticlesapi.barrages;
 
 import com.reiasu.reiparticlesapi.network.particle.ServerController;
@@ -62,6 +46,7 @@ public abstract class AbstractBarrage implements Barrage {
     private int spawnTick;
     private boolean isValid;
     private int currentAcrossCount;
+    private boolean isBeingHit;
     private final UUID uuid;
 
     protected AbstractBarrage(Vec3 loc, ServerLevel world, HitBox hitBox,
@@ -261,6 +246,18 @@ public abstract class AbstractBarrage implements Barrage {
 
     @Override
     public void hit(BarrageHitResult result) {
+        if (isBeingHit) {
+            return;
+        }
+        isBeingHit = true;
+        try {
+            hitInternal(result);
+        } finally {
+            isBeingHit = false;
+        }
+    }
+
+    private void hitInternal(BarrageHitResult result) {
         onHit(result);
 
         boolean timeoutHit = options.getMaxLivingTick() <= currentTick
@@ -291,6 +288,7 @@ public abstract class AbstractBarrage implements Barrage {
 
         remove();
     }
+
 
     /**
      * Removes this barrage: invalidates and removes the bound controller.

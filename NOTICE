@@ -8,9 +8,10 @@ it under the terms of the GNU Lesser General Public License as published by
 the Free Software Foundation, version 3 of the License only (LGPL-3.0-only).
 No "or later version" clause applies.
 
-Note: LGPL-3.0 is an additional permission set on top of the GNU General
-Public License version 3 (GPL-3.0). Both license texts are provided in the
-LICENSES/ directory. See LICENSES/LGPL-3.0.txt and LICENSES/GPL-3.0.txt.
+Note: This project is licensed solely under LGPL-3.0-only. The LGPL-3.0 text
+incorporates GPLv3 conditions by reference, so the GPL-3.0 full text is
+included in LICENSES/ for ease of review — not as a separate grant of rights.
+See LICENSES/LGPL-3.0.txt and LICENSES/GPL-3.0.txt.
 
 Modules:
 1. ReiParticleSkill   - Forge 1.20.1 particle effects mod

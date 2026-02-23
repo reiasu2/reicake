@@ -89,20 +89,30 @@ ParticleEmittersManager.registerCodec(MyEmitter.CODEC_ID, MyEmitter::decode);
 
 ### 4. Event Listeners
 
-> **Forge note:** `scanListeners()` is a no-op on Forge. You must register
-> listeners explicitly using `registerAnnotatedClass()` or
-> `registerListenerInstance()`. Do not rely on automatic classpath scanning.
+> **Note:** `scanListeners()` uses ClassGraph to discover `@EventListener` classes
+> in packages registered via `ReiAPIScanner.registerPackage()`. If no packages are
+> registered, it logs an info message and returns. You can also register listeners
+> explicitly:
 
 ```java
+// Option A: package scanning (discovered via ClassGraph when initEventListeners() is called)
 ReiParticlesAPI.INSTANCE.appendEventListenerTarget("mymod", "com.example.mymod.listeners");
 ReiParticlesAPI.INSTANCE.initEventListeners();
+
+// Option B: direct instance registration
+ReiParticlesAPI.INSTANCE.registerEventListener("mymod", new MyListener());
 ```
 
 ### 5. Scheduling Deferred Tasks
 
 ```java
-// Run after 20 ticks (1 second)
-ReiParticlesAPI.scheduler.runTask(20, () -> {
+// One-shot: run after 20 ticks (1 second)
+ReiParticlesAPI.reiScheduler().runTask(20, () -> {
     // Your deferred logic here
+});
+
+// Repeating: run every 5 ticks
+ReiParticlesAPI.reiScheduler().runTaskTimer(5, () -> {
+    // Repeating logic here
 });
 ```

@@ -1,21 +1,5 @@
-/*
- * Copyright (C) 2025 Reiasu
- *
- * This file is part of ReiParticlesAPI.
- *
- * ReiParticlesAPI is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, version 3 of the License.
- *
- * ReiParticlesAPI is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with ReiParticlesAPI. If not, see <https://www.gnu.org/licenses/>.
- */
 // SPDX-License-Identifier: LGPL-3.0-only
+// Copyright (C) 2025 Reiasu
 package com.reiasu.reiparticlesapi.annotations;
 
 import java.lang.annotation.ElementType;
@@ -25,8 +9,17 @@ import java.lang.annotation.Target;
 
 /**
  * Marks a field for inclusion in automatic codec serialization/deserialization.
+ * <p>
+ * Fields are serialized in ascending {@link #index()} order. Two fields with the
+ * same index fall back to declaration order (which is JVM-dependent and fragile).
+ * Always assign explicit indices when wire compatibility matters.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
 public @interface CodecField {
+    /**
+     * Explicit serialization order index. Lower values are encoded first.
+     * Default {@code 0} — fields sharing the same index are sorted by name as a fallback.
+     */
+    int index() default 0;
 }

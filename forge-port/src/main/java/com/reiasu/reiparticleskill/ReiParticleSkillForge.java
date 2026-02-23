@@ -1,21 +1,5 @@
-/*
- * Copyright (C) 2025 Reiasu
- *
- * This file is part of ReiParticleSkill.
- *
- * ReiParticleSkill is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, version 3 of the License.
- *
- * ReiParticleSkill is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with ReiParticleSkill. If not, see <https://www.gnu.org/licenses/>.
- */
 // SPDX-License-Identifier: LGPL-3.0-only
+// Copyright (C) 2025 Reiasu
 package com.reiasu.reiparticleskill;
 
 import com.reiasu.reiparticlesapi.ReiParticlesAPI;
@@ -24,8 +8,6 @@ import com.reiasu.reiparticleskill.command.SkillActionCommand;
 import com.reiasu.reiparticleskill.command.port.APITestCommandPort;
 import com.reiasu.reiparticleskill.command.port.DisplayCommandPort;
 import com.reiasu.reiparticleskill.command.port.RailgunCommandPort;
-import com.reiasu.reiparticleskill.compat.reiparticles.ReiparticlesFacade;
-import com.reiasu.reiparticleskill.compat.reiparticles.ReiparticlesFacadeProvider;
 import com.reiasu.reiparticleskill.compat.version.ModLifecycleVersionBridge;
 import com.reiasu.reiparticleskill.compat.version.VersionBridgeRegistry;
 import com.reiasu.reiparticleskill.enchantments.SkillEnchantments;
@@ -49,7 +31,6 @@ public final class ReiParticleSkillForge {
     public static final String MOD_ID = "reiparticleskill";
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final ModLifecycleVersionBridge LIFECYCLE = VersionBridgeRegistry.lifecycle();
-    private final ReiparticlesFacade reiparticles = ReiparticlesFacadeProvider.get();
     private final EndRespawnStateBridge endRespawnBridge = new EndRespawnStateBridge();
 
     public ReiParticleSkillForge() {
@@ -66,17 +47,18 @@ public final class ReiParticleSkillForge {
             ServerListener.onServerPostTick(server);
         });
 
-        reiparticles.bootstrap(LOGGER);
+        ReiParticlesAPI.init();
+        ReiParticlesAPI.INSTANCE.loadScannerPackages();
         registerApiListeners();
         registerRuntimePorts();
-        reiparticles.registerParticleStyles(LOGGER);
-        reiparticles.registerTestHooks(LOGGER);
+        ReiParticlesAPI.INSTANCE.registerParticleStyles();
+        ReiParticlesAPI.INSTANCE.registerTest();
 
         LOGGER.info("ReiParticleSkill Forge runtime initialized");
     }
 
     private void onClientSetup() {
-        reiparticles.registerKeyBindings(LOGGER);
+        ReiParticlesAPI.INSTANCE.registerKeyBindings();
         LOGGER.info("ReiParticleSkill client setup completed");
     }
 
@@ -90,9 +72,6 @@ public final class ReiParticleSkillForge {
     }
 
     private void registerApiListeners() {
-        if (!reiparticles.isOperational()) {
-            return;
-        }
         try {
             ReiParticlesAPI.INSTANCE.registerEventListener(MOD_ID, new KeyListener());
             LOGGER.info("Registered ReiParticleSkill API listeners");
