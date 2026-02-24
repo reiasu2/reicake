@@ -1,5 +1,3 @@
-// SPDX-License-Identifier: LGPL-3.0-only
-// Copyright (C) 2025 Reiasu
 package com.reiasu.reiparticleskill.command.layout;
 
 import com.reiasu.reiparticleskill.util.geom.Math3DUtil;

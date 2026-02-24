@@ -1,5 +1,3 @@
-// SPDX-License-Identifier: LGPL-3.0-only
-// Copyright (C) 2025 Reiasu
 package com.reiasu.reiparticlesapi.utils.helper.impl.composition;
 
 import com.reiasu.reiparticlesapi.network.particle.composition.ParticleComposition;
