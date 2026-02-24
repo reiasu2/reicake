@@ -22,6 +22,10 @@ public final class EndRespawnWatcher {
     private EndRespawnWatcher() {
     }
 
+        public static void clearTrackers() {
+        SYNTHETIC_TRACKERS.clear();
+    }
+
     public static void tickServer(MinecraftServer server, EndRespawnStateBridge bridge, Logger logger) {
         boolean foundRespawning = false;
 
@@ -107,7 +111,7 @@ public final class EndRespawnWatcher {
         return Math.max(fromFight, fromPortalArea);
     }
 
-    // Synthetic phase tick thresholds — aligned with Fabric mixin timing.
+    // Synthetic phase tick thresholds --” aligned with Fabric mixin timing.
     // Extracted to constants so they can be tuned or tested independently.
     static final long PHASE_START_END            = 150L;
     static final long PHASE_SUMMON_PILLARS_END   = 650L;

@@ -20,11 +20,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * Sword explosion emitter producing three layers of particles:
- * flash (sign=0), spark (sign=1), and ring (sign=2).
- * Matches the visual intent of the Fabric original.
- */
 @ReiAutoRegister
  public final class SwordExplosionEmitters extends AutoParticleEmitters {
     public static final ResourceLocation CODEC_ID = ResourceLocation.fromNamespaceAndPath("reiparticleskill", "sword_explosion");

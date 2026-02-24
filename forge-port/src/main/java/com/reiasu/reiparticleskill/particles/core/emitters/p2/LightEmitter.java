@@ -20,10 +20,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * Lightning-attenuation emitter that spawns branching particle bolts
- * outward from the emitter origin, matching the Fabric original's visual intent.
- */
 @ReiAutoRegister
  public final class LightEmitter extends AutoParticleEmitters {
     public static final ResourceLocation CODEC_ID = ResourceLocation.fromNamespaceAndPath("reiparticleskill", "light");

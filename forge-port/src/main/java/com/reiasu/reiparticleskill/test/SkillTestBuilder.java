@@ -11,10 +11,6 @@ import com.reiasu.reiparticleskill.particles.core.emitters.p2.formation.SwordFor
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.phys.Vec3;
 
-/**
- * Skill test builder that creates a test group with sword formation emitter tests.
- * Server-side port of the Fabric original, adapted to Forge test API.
- */
 public final class SkillTestBuilder implements TestGroupBuilder {
     public static final String ID = "skill-test-builder";
 

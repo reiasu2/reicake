@@ -27,12 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-/**
- * Ender respawn center style that renders concentric Fourier-series glyphs
- * and a large outer circle with enchantment particles.
- * Features multiple rotating layers with different speeds and scale-in animation.
- * Color: purple (210, 80, 255). Server-side port of the Fabric original.
- */
 @ReiAutoRegister
  public final class EnderRespawnCenterStyle extends ParticleGroupStyle {
     public static final ResourceLocation REGISTRY_KEY = ResourceLocation.fromNamespaceAndPath("reiparticleskill", "ender_respawn_center_style");

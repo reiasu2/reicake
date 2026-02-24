@@ -27,11 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-/**
- * End crystal particle style rendering a rotating circle with Fourier-series glyph overlay.
- * Color: purple (210, 80, 255). Supports scale-in/out and status-driven removal.
- * Server-side port of the Fabric original.
- */
 @ReiAutoRegister
  public final class EndCrystalStyle extends ParticleGroupStyle {
     public static final ResourceLocation REGISTRY_KEY = ResourceLocation.fromNamespaceAndPath("reiparticleskill", "end_crystal_style");

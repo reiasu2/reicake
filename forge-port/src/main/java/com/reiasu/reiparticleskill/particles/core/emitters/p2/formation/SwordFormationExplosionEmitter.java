@@ -20,10 +20,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * Sword formation explosion emitter producing sphere-wave and disc-wave particles
- * at a formation collapse point, matching the Fabric original.
- */
 @ReiAutoRegister
  public final class SwordFormationExplosionEmitter extends AutoParticleEmitters {
     public static final ResourceLocation CODEC_ID = ResourceLocation.fromNamespaceAndPath("reiparticleskill", "sword_formation_explosion");

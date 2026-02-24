@@ -20,10 +20,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * Sword aura emitter producing main arc particles and sub trail particles
- * that follow the sword swing direction, matching the Fabric original.
- */
 @ReiAutoRegister
  public final class SwordAuraEmitters extends AutoParticleEmitters {
     public static final ResourceLocation CODEC_ID = ResourceLocation.fromNamespaceAndPath("reiparticleskill", "sword_aura");

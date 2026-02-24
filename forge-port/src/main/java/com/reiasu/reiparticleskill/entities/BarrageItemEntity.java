@@ -101,5 +101,5 @@ public class BarrageItemEntity extends Entity {
         }
     }
 
-    // getAddEntityPacket removed in 1.21 — NeoForge handles entity spawn packets automatically
+    // getAddEntityPacket removed in 1.21 --” NeoForge handles entity spawn packets automatically
 }

@@ -72,15 +72,6 @@ public final class PointsBuilder {
         return this;
     }
 
-    @Deprecated
-    public PointsBuilder addWith(Function<Math3DUtil, Collection<RelativeLocation>> generator) {
-        Collection<RelativeLocation> generated = generator.apply(null);
-        if (generated != null) {
-            points.addAll(generated);
-        }
-        return this;
-    }
-
     public PointsBuilder rotateAsAxis(double radians) {
         double cos = Math.cos(radians);
         double sin = Math.sin(radians);

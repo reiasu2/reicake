@@ -9,12 +9,6 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.boss.enderdragon.EndCrystal;
 
-/**
- * Custom End Crystal renderer that suppresses the vanilla beam.
- * Temporarily clears beamTarget before delegating to the vanilla
- * renderer, then restores it. This is deterministic with no timing
- * races because it runs entirely on the Render thread.
- */
 public class NoBeamEndCrystalRenderer extends EndCrystalRenderer {
 
     public NoBeamEndCrystalRenderer(EntityRendererProvider.Context context) {

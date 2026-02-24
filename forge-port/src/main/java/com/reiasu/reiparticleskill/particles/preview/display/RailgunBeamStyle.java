@@ -27,11 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-/**
- * Railgun beam style that renders a long beam of particles along a direction,
- * with hexagonal vertex anchors and a rotating central column.
- * Server-side port of the Fabric original.
- */
 @ReiAutoRegister
  public final class RailgunBeamStyle extends ParticleGroupStyle {
     public static final ResourceLocation REGISTRY_KEY = ResourceLocation.fromNamespaceAndPath("reiparticleskill", "railgun_beam_style");

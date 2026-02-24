@@ -13,10 +13,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-/**
- * Tracks ender dragons whose gravity has been temporarily disabled
- * and restores it after a configured number of ticks.
- */
 final class DragonGravityTracker {
 
     private final Map<UUID, Long> restoreTicks = new HashMap<>();

@@ -20,10 +20,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * Sword formation wave emitter producing spiral radian-based particles
- * that expand outward from the formation center, matching the Fabric original.
- */
 @ReiAutoRegister
  public final class SwordFormationWaveEmitter extends AutoParticleEmitters {
     public static final ResourceLocation CODEC_ID = ResourceLocation.fromNamespaceAndPath("reiparticleskill", "sword_formation_wave");

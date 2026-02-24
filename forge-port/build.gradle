@@ -40,6 +40,9 @@ neoForge {
     }
 
     mods {
+        "reiparticlesapi" {
+            sourceSet(sourceSets.main)
+        }
         "${mod_id}" {
             sourceSet(sourceSets.main)
         }
@@ -52,9 +55,9 @@ repositories {
 }
 
 dependencies {
-    // Resolved via composite build (see settings.gradle includeBuild)
-    compileOnly 'com.reiasu.reiparticlesapi:reiparticlesapi:1.0-SNAPSHOT-neoforge'
-    testImplementation 'com.reiasu.reiparticlesapi:reiparticlesapi:1.0-SNAPSHOT-neoforge'
+    // ClassGraph — runtime classpath scanning (used by ReiAPIScanner)
+    implementation 'io.github.classgraph:classgraph:4.8.174'
+
     testImplementation platform('org.junit:junit-bom:5.11.4')
     testImplementation 'org.junit.jupiter:junit-jupiter'
 }

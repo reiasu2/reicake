@@ -20,10 +20,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * Sword formation emitter producing vortex and outer spread particles
- * around a formation center, matching the Fabric original.
- */
 @ReiAutoRegister
  public final class SwordFormationEmitters extends AutoParticleEmitters {
     public static final ResourceLocation CODEC_ID = ResourceLocation.fromNamespaceAndPath("reiparticleskill", "sword_formation");

@@ -23,12 +23,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * Emitter that collects ender-power particles toward a target position.
- * Particles spawn outward and converge on the target with alpha fade,
- * rotation, and velocity damping near the destination.
- * Server-side port of the Fabric original.
- */
 public final class CollectEnderPowerEmitter extends AutoParticleEmitters {
     public static final ResourceLocation CODEC_ID = ResourceLocation.fromNamespaceAndPath("reiparticleskill", "collect_ender_power");
 
@@ -157,7 +151,7 @@ public final class CollectEnderPowerEmitter extends AutoParticleEmitters {
             } else {
                 progress = 1.0f;
             }
-            float alpha = GraphMathHelper.lerp(progress, 0.0f, 1.0f);
+            float alpha = Mth.lerp(progress, 0.0f, 1.0f);
             if (alpha < 0.02f) continue;
 
             if (p.sign == 0) {

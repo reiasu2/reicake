@@ -12,11 +12,6 @@ import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.neoforged.bus.api.IEventBus;
 
-/**
- * In MC 1.21+, enchantments are data-driven.
- * The sword_light enchantment is defined in:
- * {@code data/reiparticleskill/enchantment/sword_light.json}
- */
 public final class SkillEnchantments {
 
     public static final ResourceKey<Enchantment> SWORD_LIGHT =

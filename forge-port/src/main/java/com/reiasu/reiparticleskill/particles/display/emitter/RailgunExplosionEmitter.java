@@ -20,10 +20,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * Railgun explosion emitter producing a disc wave and sphere ball of particles,
- * matching the Fabric original's visual intent.
- */
 @ReiAutoRegister
  public final class RailgunExplosionEmitter extends AutoParticleEmitters {
     public static final ResourceLocation CODEC_ID = ResourceLocation.fromNamespaceAndPath("reiparticleskill", "railgun_explosion");

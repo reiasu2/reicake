@@ -24,10 +24,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * End beam explosion emitter that spawns a disc wave of particles
- * expanding outward with velocity drag. Server-side port of the Fabric original.
- */
 @ReiAutoRegister
  public final class EndBeamExplosionEmitter extends AutoParticleEmitters {
     public static final ResourceLocation CODEC_ID = ResourceLocation.fromNamespaceAndPath("reiparticleskill", "end_beam_explosion");

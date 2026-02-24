@@ -30,12 +30,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-/**
- * Utility singleton that orchestrates dragon respawn animation sequences.
- * Manages state transitions (setup → pillars → crystal converge → end explosion)
- * using the Animate system and particle emitters/styles.
- * Server-side port of the Fabric original.
- */
 public final class DragonRespawnStateUtil {
     public static final DragonRespawnStateUtil INSTANCE = new DragonRespawnStateUtil();
 
@@ -51,9 +45,6 @@ public final class DragonRespawnStateUtil {
 
     private DragonRespawnStateUtil() {
     }
-
-    // ---- Accessors ----
-
     public String getCurrent() {
         return current;
     }
@@ -101,13 +92,7 @@ public final class DragonRespawnStateUtil {
     public void setCrystals(List<? extends EndCrystal> crystals) {
         this.crystals = crystals == null ? new ArrayList<>() : crystals;
     }
-
-    // ---- Public API ----
-
-    /**
-     * Initialize the respawn state with world context, position, fight instance, and crystals.
-     */
-    public void setup(ServerLevel world, BlockPos pos, EndDragonFight fight,
+        public void setup(ServerLevel world, BlockPos pos, EndDragonFight fight,
                       List<? extends EndCrystal> crystals) {
         this.world = world;
         this.pos = pos;
@@ -119,11 +104,7 @@ public final class DragonRespawnStateUtil {
         this.tickingAnimates.clear();
     }
 
-    /**
-     * Advance to the next respawn phase by id.
-     * Returns true if the phase transition was recognized and handled.
-     */
-    public boolean next(String id) {
+        public boolean next(String id) {
         if (id == null || id.isEmpty()) {
             return false;
         }
@@ -146,10 +127,7 @@ public final class DragonRespawnStateUtil {
         return true;
     }
 
-    /**
-     * Handle the once-pillars event (camera shake + pillar emitters).
-     */
-    public void handleOncePillars(BlockPos pillarPos) {
+        public void handleOncePillars(BlockPos pillarPos) {
         if (world == null || pillarPos == null) return;
 
         Vec3 center = Vec3.atCenterOf(pillarPos);
@@ -169,10 +147,7 @@ public final class DragonRespawnStateUtil {
         pillarsAnimates.add(pillarAnimate);
     }
 
-    /**
-     * Handle the end phase — summon explosion and dragon invulnerability toggle.
-     */
-    public void handleEnd() {
+        public void handleEnd() {
         if (world == null || pos == null) return;
 
         Vec3 center = Vec3.atCenterOf(pos);
@@ -202,10 +177,7 @@ public final class DragonRespawnStateUtil {
                 });
     }
 
-    /**
-     * Get or create the current animate sequence for the active respawn phase.
-     */
-    public Animate getAnimateFrom() {
+        public Animate getAnimateFrom() {
         if (currentAnimate != null && !currentAnimate.getDone()) {
             return currentAnimate;
         }
@@ -241,10 +213,7 @@ public final class DragonRespawnStateUtil {
         return animate;
     }
 
-    /**
-     * Tick all active animates.
-     */
-    public void tick() {
+        public void tick() {
         // Tick pillar animates
         pillarsAnimates.removeIf(a -> {
             a.tick();
@@ -266,10 +235,7 @@ public final class DragonRespawnStateUtil {
         }
     }
 
-    /**
-     * Cancel all active animates and reset state.
-     */
-    public void cancel() {
+        public void cancel() {
         for (Animate a : pillarsAnimates) {
             if (!a.getDone()) a.cancel();
         }
@@ -286,9 +252,6 @@ public final class DragonRespawnStateUtil {
         currentAnimate = null;
         current = "";
     }
-
-    // ---- Internal phases ----
-
     private void handlePillarsPhase() {
         if (world == null || pos == null) return;
 

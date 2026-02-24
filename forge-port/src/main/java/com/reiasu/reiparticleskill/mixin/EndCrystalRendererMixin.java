@@ -11,13 +11,6 @@ import net.minecraft.world.entity.boss.enderdragon.EndCrystal;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
-/**
- * Suppresses the vanilla End Crystal beam so the mod's custom
- * particle effects are not obscured by the bright white beam.
- * <p>
- * Uses {@link WrapOperation} (MixinExtras) instead of {@code @Redirect}
- * so that multiple mods can safely wrap the same {@code getBeamTarget()} call.
- */
 @Mixin(EndCrystalRenderer.class)
 public abstract class EndCrystalRendererMixin {
 

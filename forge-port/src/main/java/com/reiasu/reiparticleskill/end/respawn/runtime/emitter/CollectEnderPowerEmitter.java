@@ -70,15 +70,7 @@ public final class CollectEnderPowerEmitter extends TimedRespawnEmitter {
         return this;
     }
 
-    /**
-     * Logarithmic spiral inward trajectory with angular momentum conservation.
-     * Each particle orbits the target on a tightening spiral path:
-     *   r(t) = r0 · e^(-λ·t)
-     *   θ(t) = θ0 + ω0·r0/r(t) · t   (angular momentum ∝ r·ω = const)
-     *
-     * @author Reiasu
-     */
-    @Override
+        @Override
     protected int emit(ServerLevel level, Vec3 center, int tick) {
         Vec3 origin = center.add(originOffset);
         Vec3 target = center.add(targetOffset);
@@ -109,7 +101,7 @@ public final class CollectEnderPowerEmitter extends TimedRespawnEmitter {
             double decay = Math.exp(-p.lambda * p.age);
             double currentR = p.initialRadius * decay;
 
-            // Angular momentum conservation: ω ∝ 1/r² → angle accelerates as r shrinks
+            // Angular momentum conservation: Ï‰ --ˆ 1/r--² --†’ angle accelerates as r shrinks
             double angularProgress = p.omega0 * p.initialRadius * p.initialRadius
                     * (1.0 / Math.max(0.5, currentR * currentR));
             double theta = p.initialTheta + angularProgress * p.age * 0.05;
@@ -197,7 +189,7 @@ public final class CollectEnderPowerEmitter extends TimedRespawnEmitter {
             double initR = Math.sqrt(dx * dx + dz * dz);
             double initTheta = Math.atan2(dz, dx);
 
-            // Spiral decay rate: λ controls how fast particles converge
+            // Spiral decay rate: Î» controls how fast particles converge
             double lambda = randomBetween(0.04, 0.09);
             // Initial angular velocity: higher = more orbits
             double omega = randomBetween(1.5, 4.0) * (random.nextBoolean() ? 1.0 : -1.0);

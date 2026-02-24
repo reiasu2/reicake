@@ -13,10 +13,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 
-/**
- * Client-rendered rotating cloud ring emitter.
- * Server syncs params only; client generates particles locally.
- */
 @ReiAutoRegister
 public final class ClientCloudRingEmitter extends AutoParticleEmitters {
     public static final ResourceLocation CODEC_ID = ResourceLocation.fromNamespaceAndPath("reiparticleskill", "client_cloud_ring");
@@ -66,6 +62,10 @@ public final class ClientCloudRingEmitter extends AutoParticleEmitters {
     }
 
     private void renderCloud(Level level, Vec3 center, int tick) {
+        double cx = center.x;
+        double cy = center.y;
+        double cz = center.z;
+
         int cMin = Math.max(1, countMin);
         int cMax = Math.max(cMin + 1, countMax);
         int count = random.nextInt(cMin, cMax);
@@ -81,7 +81,7 @@ public final class ClientCloudRingEmitter extends AutoParticleEmitters {
         double wavePhase = tick * 0.12;
 
         float dustSize = (float) Math.max(0.4, Math.min(4.0,
-                randomBetween(minSize, maxSize) * scale * 2.5));
+                randRange(minSize, maxSize) * scale * 2.5));
         DustParticleOptions dust = new DustParticleOptions(MAIN_COLOR, dustSize);
         DustParticleOptions dustLg = new DustParticleOptions(MAIN_COLOR, Math.min(4.0f, dustSize * 1.5f));
 
@@ -92,14 +92,19 @@ public final class ClientCloudRingEmitter extends AutoParticleEmitters {
             double localR = r * radialWobble;
             double waveY = waveAmplitude * Math.sin(waveLobes * angle - wavePhase);
 
-            double jR = disc > 0 ? random.nextDouble() * disc : 0.0;
-            double jA = random.nextDouble() * TAU;
-            double px = Math.cos(angle) * localR + Math.cos(jA) * jR;
-            double pz = Math.sin(angle) * localR + Math.sin(jA) * jR;
+            double px = Math.cos(angle) * localR;
+            double pz = Math.sin(angle) * localR;
 
-            double wx = center.x + px;
-            double wy = center.y + yOff + waveY;
-            double wz = center.z + pz;
+            if (disc > 0) {
+                double jR = random.nextDouble() * disc;
+                double jA = random.nextDouble() * TAU;
+                px += Math.cos(jA) * jR;
+                pz += Math.sin(jA) * jR;
+            }
+
+            double wx = cx + px;
+            double wy = cy + yOff + waveY;
+            double wz = cz + pz;
 
             double tgx = -Math.sin(angle) * 0.03;
             double tgz =  Math.cos(angle) * 0.03;
@@ -114,10 +119,9 @@ public final class ClientCloudRingEmitter extends AutoParticleEmitters {
         }
     }
 
-    private double randomBetween(double min, double max) {
-        double lo = Math.min(min, max);
-        double hi = Math.max(min, max);
-        return (Math.abs(hi - lo) < 1.0E-6) ? lo : lo + random.nextDouble() * (hi - lo);
+    // FIXME: cloud and enchant share a lot of ring logic, could extract base class
+    private double randRange(double lo, double hi) {
+        return lo + random.nextDouble() * (hi - lo);
     }
 
     private double easeScale(int tick) {

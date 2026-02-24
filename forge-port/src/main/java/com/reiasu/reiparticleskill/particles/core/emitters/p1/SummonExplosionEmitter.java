@@ -12,10 +12,6 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.UUID;
 
-/**
- * Summon explosion emitter stub. The Fabric original is an empty placeholder
- * registered via ReiAutoRegister. Preserved for API compatibility.
- */
 public final class SummonExplosionEmitter extends AutoParticleEmitters {
     public static final ResourceLocation CODEC_ID = ResourceLocation.fromNamespaceAndPath("reiparticleskill", "summon_explosion");
 
@@ -49,6 +45,6 @@ public final class SummonExplosionEmitter extends AutoParticleEmitters {
 
     @Override
     protected void emitTick() {
-        // Stub — no emission logic in the original
+        // Stub --” no emission logic in the original
     }
 }

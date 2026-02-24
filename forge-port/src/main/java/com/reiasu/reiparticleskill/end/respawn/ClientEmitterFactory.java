@@ -14,11 +14,6 @@ import net.minecraft.world.phys.Vec3;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Creates and manages client-rendered particle emitters for the
- * dragon respawn animation phases. Emitter parameters are defined
- * as named presets instead of inline magic numbers.
- */
 final class ClientEmitterFactory {
 
     // --- Rotation speed presets ---

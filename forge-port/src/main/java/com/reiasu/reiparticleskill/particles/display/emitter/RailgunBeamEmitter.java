@@ -22,10 +22,6 @@ import org.joml.Vector3f;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * Railgun beam emitter that spawns a long vertical beam of particles
- * with scattered disc particles at the base, matching the Fabric original.
- */
 @ReiAutoRegister
  public final class RailgunBeamEmitter extends AutoParticleEmitters {
     public static final ResourceLocation CODEC_ID = ResourceLocation.fromNamespaceAndPath("reiparticleskill", "railgun_beam");

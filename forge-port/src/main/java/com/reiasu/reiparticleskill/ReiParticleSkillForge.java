@@ -48,18 +48,19 @@ public final class ReiParticleSkillForge {
             EndRespawnWatcher.tickServer(event.getServer(), endRespawnBridge, LOGGER);
             ServerListener.onServerPostTick(event.getServer());
         });
+        NeoForge.EVENT_BUS.addListener((net.neoforged.neoforge.event.server.ServerStoppedEvent event) ->
+                EndRespawnWatcher.clearTrackers());
 
         ReiParticlesAPI.init();
         ReiParticlesAPI.INSTANCE.loadScannerPackages();
-        registerApiListeners();
         registerRuntimePorts();
         ReiParticlesAPI.INSTANCE.registerTest();
 
-        LOGGER.info("ReiParticleSkill NeoForge runtime initialized");
+        
     }
 
     private void onClientSetup() {
-        LOGGER.info("ReiParticleSkill client setup completed");
+        
     }
 
     private void onRegisterCommands(com.mojang.brigadier.CommandDispatcher<net.minecraft.commands.CommandSourceStack> dispatcher) {
@@ -68,16 +69,7 @@ public final class ReiParticleSkillForge {
         DisplayCommandPort.register(dispatcher);
         RailgunCommandPort.register(dispatcher);
         APITestCommandPort.register(dispatcher);
-        LOGGER.info("Registered reiparticleskill debug commands");
-    }
-
-    private void registerApiListeners() {
-        try {
-            ReiParticlesAPI.INSTANCE.registerEventListener(MOD_ID, new KeyListener());
-            LOGGER.info("Registered ReiParticleSkill API listeners");
-        } catch (Throwable t) {
-            LOGGER.warn("Failed to register ReiParticleSkill API listeners", t);
-        }
+        
     }
 
     private void registerRuntimePorts() {

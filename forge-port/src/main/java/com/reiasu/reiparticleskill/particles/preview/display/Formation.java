@@ -17,10 +17,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Static sword-shaped formation composition.
- * Renders the sword outline as defined in the Fabric original's Formation class.
- */
 public final class Formation extends AutoParticleComposition {
     private static final DustParticleOptions COLOR =
             new DustParticleOptions(new Vector3f(0.95f, 0.82f, 0.35f), 0.7f);

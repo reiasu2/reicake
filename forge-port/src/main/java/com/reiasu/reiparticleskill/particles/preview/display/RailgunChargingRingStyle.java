@@ -27,10 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-/**
- * Railgun charging ring style that renders concentric rotating rings
- * with a polygon glyph overlay, matching the Fabric original.
- */
 @ReiAutoRegister
  public final class RailgunChargingRingStyle extends ParticleGroupStyle {
     public static final ResourceLocation REGISTRY_KEY = ResourceLocation.fromNamespaceAndPath("reiparticleskill", "railgun_charging_ring_style");

@@ -3,19 +3,20 @@
 package com.reiasu.reiparticleskill.end.respawn;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.boss.enderdragon.EndCrystal;
 import net.minecraft.world.level.dimension.end.EndDragonFight;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
-/**
- * Utility methods for reading dragon-respawn state from {@link EndDragonFight}
- * via reflection (Forge 1.20.x mappings).
- */
 public final class EndDragonFightHelper {
 
     private EndDragonFightHelper() {
@@ -159,5 +160,45 @@ public final class EndDragonFightHelper {
             return number.intValue();
         }
         return null;
+    }
+
+    // ---- Crystal resolution ----
+
+    static EndCrystal resolvePulseCrystal(ServerLevel level, Vec3 center, Vec3 anchor,
+                                          UUID preferredCrystalId, double searchRadius) {
+        if (preferredCrystalId != null) {
+            net.minecraft.world.entity.Entity entity = level.getEntity(preferredCrystalId);
+            if (entity instanceof EndCrystal preferred && preferred.isAlive()) {
+                return preferred;
+            }
+        }
+        java.util.List<EndCrystal> nearAnchor = level.getEntitiesOfClass(
+                EndCrystal.class,
+                new AABB(anchor, anchor).inflate(8.0),
+                EndCrystal::isAlive
+        );
+        EndCrystal closest = nearestCrystalTo(anchor, nearAnchor);
+        if (closest != null) {
+            return closest;
+        }
+        java.util.List<EndCrystal> aroundPortal = level.getEntitiesOfClass(
+                EndCrystal.class,
+                new AABB(center, center).inflate(searchRadius),
+                EndCrystal::isAlive
+        );
+        return nearestCrystalTo(anchor, aroundPortal);
+    }
+
+    static EndCrystal nearestCrystalTo(Vec3 pos, java.util.List<EndCrystal> crystals) {
+        EndCrystal best = null;
+        double bestDistance = Double.MAX_VALUE;
+        for (EndCrystal candidate : crystals) {
+            double d = candidate.position().distanceToSqr(pos);
+            if (d < bestDistance) {
+                bestDistance = d;
+                best = candidate;
+            }
+        }
+        return best;
     }
 }

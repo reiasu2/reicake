@@ -2,8 +2,6 @@
 // Copyright (C) 2025 Reiasu
 package com.reiasu.reiparticleskill.listener;
 
-import com.reiasu.reiparticlesapi.annotations.events.EventHandler;
-import com.reiasu.reiparticlesapi.annotations.events.EventListener;
 import com.reiasu.reiparticlesapi.event.events.key.KeyActionEvent;
 import com.reiasu.reiparticlesapi.event.events.key.KeyActionType;
 import com.reiasu.reiparticleskill.ReiParticleSkillForge;
@@ -17,13 +15,12 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.bus.api.SubscribeEvent;
 
-@EventListener(modId = ReiParticleSkillForge.MOD_ID)
 @net.neoforged.fml.common.EventBusSubscriber(modid = ReiParticleSkillForge.MOD_ID, bus = net.neoforged.fml.common.EventBusSubscriber.Bus.GAME)
 public final class KeyListener {
     private static final int USE_COOLDOWN_TICKS = 16;
 
-    @EventHandler
-    public void onKeyEvent(KeyActionEvent event) {
+    @SubscribeEvent
+    public static void onKeyEvent(KeyActionEvent event) {
         if (event == null || event.getAction() != KeyActionType.SINGLE_CLICK || !event.getServerSide()) {
             return;
         }
