@@ -4,14 +4,18 @@ package com.reiasu.reiparticlesapi.network.packet;
 
 import com.reiasu.reiparticlesapi.client.CameraShakeClientState;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.network.NetworkEvent;
 
-import java.util.function.Supplier;
 
-public record CameraShakeS2CPacket(double range, Vec3 origin, double amplitude, int tick) {
+public record CameraShakeS2CPacket(double range, Vec3 origin, double amplitude, int tick) implements CustomPacketPayload {
+    public static final Type<CameraShakeS2CPacket> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath("reiparticlesapi", "camera_shake_s2_c_packet"));
+    public static final StreamCodec<RegistryFriendlyByteBuf, CameraShakeS2CPacket> STREAM_CODEC = StreamCodec.of((buf, pkt) -> encode(pkt, buf), CameraShakeS2CPacket::decode);
+
     public static void encode(CameraShakeS2CPacket packet, FriendlyByteBuf buf) {
         buf.writeDouble(packet.range);
         buf.writeDouble(packet.origin.x);
@@ -29,11 +33,10 @@ public record CameraShakeS2CPacket(double range, Vec3 origin, double amplitude, 
         return new CameraShakeS2CPacket(range, origin, amplitude, tick);
     }
 
-    public static void handle(CameraShakeS2CPacket packet, Supplier<NetworkEvent.Context> contextSupplier) {
-        NetworkEvent.Context context = contextSupplier.get();
-        context.enqueueWork(() ->
-                DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> CameraShakeClientState.start(packet))
-        );
-        context.setPacketHandled(true);
+    public static void handle(CameraShakeS2CPacket packet, IPayloadContext context) {
+        context.enqueueWork(() -> CameraShakeClientState.start(packet));
     }
+
+    @Override
+    public Type<? extends CustomPacketPayload> type() { return TYPE; }
 }

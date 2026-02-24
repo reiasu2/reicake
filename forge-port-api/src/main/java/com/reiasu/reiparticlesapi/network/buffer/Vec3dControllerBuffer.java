@@ -9,7 +9,7 @@ import java.nio.ByteBuffer;
 
 public final class Vec3dControllerBuffer extends AbstractControllerBuffer<Vec3> {
     public static final ParticleControllerDataBuffer.Id ID =
-            new ParticleControllerDataBuffer.Id(new ResourceLocation("reiparticlesapi", "vec3d"));
+            new ParticleControllerDataBuffer.Id(ResourceLocation.fromNamespaceAndPath("reiparticlesapi", "vec3d"));
 
     @Override
     public byte[] encode(Vec3 value) {

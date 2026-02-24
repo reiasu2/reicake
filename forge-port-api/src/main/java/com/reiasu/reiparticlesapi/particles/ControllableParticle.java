@@ -576,11 +576,10 @@ public abstract class ControllableParticle extends TextureSheetParticle {
                            float tu, float tv,
                            float size, int light) {
         Vector3f pos = new Vector3f(vx, vy, 0.0f).rotate(q).mul(size).add(dx, dy, dz);
-        consumer.vertex(pos.x, pos.y, pos.z)
-                .uv(tu, tv)
-                .color(this.rCol, this.gCol, this.bCol, this.alpha)
-                .uv2(light)
-                .endVertex();
+        consumer.addVertex(pos.x, pos.y, pos.z)
+                .setUv(tu, tv)
+                .setColor(this.rCol, this.gCol, this.bCol, this.alpha)
+                .setLight(light);
     }
 
     // ---- Render type ----

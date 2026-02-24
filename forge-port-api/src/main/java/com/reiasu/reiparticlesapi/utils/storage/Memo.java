@@ -13,8 +13,8 @@ import java.util.function.Supplier;
  */
 public final class Memo<T> {
     private final Supplier<T> supplier;
-    private T memo;
-    private boolean initialized;
+    private volatile T memo;
+    private volatile boolean initialized;
 
     public Memo(Supplier<T> supplier) {
         this.supplier = supplier;
@@ -26,8 +26,12 @@ public final class Memo<T> {
 
     public T get() {
         if (!initialized) {
-            memo = supplier.get();
-            initialized = true;
+            synchronized (this) {
+                if (!initialized) {
+                    memo = supplier.get();
+                    initialized = true;
+                }
+            }
         }
         return memo;
     }

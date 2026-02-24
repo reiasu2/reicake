@@ -13,6 +13,6 @@ public final class SkillKeys {
     }
 
     public static ResourceLocation id(String path) {
-        return new ResourceLocation(ReiParticleSkillForge.MOD_ID, path);
+        return ResourceLocation.fromNamespaceAndPath(ReiParticleSkillForge.MOD_ID, path);
     }
 }

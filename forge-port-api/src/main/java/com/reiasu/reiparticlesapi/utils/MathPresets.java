@@ -7,6 +7,7 @@ import com.reiasu.reiparticlesapi.utils.builder.PointsBuilder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Function;
 
 /**
  * Preset particle shapes for Roman numeral display (I through XII).
@@ -177,25 +178,27 @@ public final class MathPresets {
         return 0.25 * scale * 2.0;
     }
 
+    @SuppressWarnings("unchecked")
+    private static final Function<Double, List<RelativeLocation>>[] ROMA_GENERATORS = new Function[] {
+            (Function<Double, List<RelativeLocation>>) MathPresets::romaI,
+            (Function<Double, List<RelativeLocation>>) MathPresets::romaII,
+            (Function<Double, List<RelativeLocation>>) MathPresets::romaIII,
+            (Function<Double, List<RelativeLocation>>) MathPresets::romaIV,
+            (Function<Double, List<RelativeLocation>>) MathPresets::romaV,
+            (Function<Double, List<RelativeLocation>>) MathPresets::romaVI,
+            (Function<Double, List<RelativeLocation>>) MathPresets::romaVII,
+            (Function<Double, List<RelativeLocation>>) MathPresets::romaVIII,
+            (Function<Double, List<RelativeLocation>>) MathPresets::romaIX,
+            (Function<Double, List<RelativeLocation>>) MathPresets::romaX,
+            (Function<Double, List<RelativeLocation>>) MathPresets::romaXI,
+            (Function<Double, List<RelativeLocation>>) MathPresets::romaXII,
+    };
+
     public static List<RelativeLocation> withRomaNumber(int i, double scale) {
-        if (i < 1 || i > 12) {
-            throw new IllegalArgumentException("Only supports Roman numerals 1-12");
+        if (i < 1 || i > ROMA_GENERATORS.length) {
+            throw new IllegalArgumentException("Only supports Roman numerals 1-" + ROMA_GENERATORS.length);
         }
-        switch (i) {
-            case 1: return romaI(scale);
-            case 2: return romaII(scale);
-            case 3: return romaIII(scale);
-            case 4: return romaIV(scale);
-            case 5: return romaV(scale);
-            case 6: return romaVI(scale);
-            case 7: return romaVII(scale);
-            case 8: return romaVIII(scale);
-            case 9: return romaIX(scale);
-            case 10: return romaX(scale);
-            case 11: return romaXI(scale);
-            case 12: return romaXII(scale);
-            default: return new ArrayList<>();
-        }
+        return ROMA_GENERATORS[i - 1].apply(scale);
     }
 
     private static void requireMinScale(double scale) {

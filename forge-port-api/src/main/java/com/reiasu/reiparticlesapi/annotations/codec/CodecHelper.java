@@ -194,7 +194,7 @@ public final class CodecHelper {
 
     private static void registerArrays() {
         INSTANCE.register(byte[].class, BufferCodec.of(
-                FriendlyByteBuf::writeByteArray, FriendlyByteBuf::readByteArray));
+                (FriendlyByteBuf buf, byte[] v) -> buf.writeByteArray(v), buf -> buf.readByteArray()));
         INSTANCE.register(long[].class, BufferCodec.of(
                 FriendlyByteBuf::writeLongArray, FriendlyByteBuf::readLongArray));
         INSTANCE.register(int[].class, BufferCodec.of(
@@ -212,12 +212,12 @@ public final class CodecHelper {
 
     private static void registerJavaTypes() {
         INSTANCE.register(String.class, BufferCodec.of(
-                FriendlyByteBuf::writeUtf,
-                FriendlyByteBuf::readUtf
+                (FriendlyByteBuf buf, String v) -> buf.writeUtf(v),
+                (FriendlyByteBuf buf) -> buf.readUtf()
         ));
         INSTANCE.register(UUID.class, BufferCodec.of(
-                FriendlyByteBuf::writeUUID,
-                FriendlyByteBuf::readUUID
+                (FriendlyByteBuf buf, UUID v) -> buf.writeUUID(v),
+                buf -> buf.readUUID()
         ));
     }
 

@@ -26,7 +26,7 @@ public final class ClientParticleStylePacketHandler {
 
     public static void receive(PacketParticleStyleS2C packet) {
         UUID uuid = packet.uuid();
-        ControlType type = packet.type();
+        ControlType type = packet.controlType();
         if (type == ControlType.CREATE) {
             handleCreate(uuid, packet.args());
             return;

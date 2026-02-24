@@ -4,14 +4,17 @@ package com.reiasu.reiparticlesapi.network.packet;
 
 import com.reiasu.reiparticlesapi.network.packet.client.listener.ClientParticleEmittersPacketHandler;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.network.NetworkEvent;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-import java.util.function.Supplier;
 
-public record PacketParticleEmittersS2C(ResourceLocation emitterKey, byte[] emitterData, PacketType type) {
+public record PacketParticleEmittersS2C(ResourceLocation emitterKey, byte[] emitterData, PacketType packetType) implements CustomPacketPayload {
+    public static final Type<PacketParticleEmittersS2C> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath("reiparticlesapi", "packet_particle_emitters_s2_c"));
+    public static final StreamCodec<RegistryFriendlyByteBuf, PacketParticleEmittersS2C> STREAM_CODEC = StreamCodec.of((buf, pkt) -> encode(pkt, buf), PacketParticleEmittersS2C::decode);
+
     public enum PacketType {
         CHANGE_OR_CREATE(0),
         REMOVE(1);
@@ -36,7 +39,7 @@ public record PacketParticleEmittersS2C(ResourceLocation emitterKey, byte[] emit
     }
 
     public static void encode(PacketParticleEmittersS2C packet, FriendlyByteBuf buf) {
-        buf.writeVarInt(packet.type.getId());
+        buf.writeVarInt(packet.packetType.getId());
         buf.writeResourceLocation(packet.emitterKey);
         buf.writeVarInt(packet.emitterData.length);
         buf.writeBytes(packet.emitterData);
@@ -51,9 +54,10 @@ public record PacketParticleEmittersS2C(ResourceLocation emitterKey, byte[] emit
         return new PacketParticleEmittersS2C(key, data, packetType);
     }
 
-    public static void handle(PacketParticleEmittersS2C packet, Supplier<NetworkEvent.Context> contextSupplier) {
-        NetworkEvent.Context context = contextSupplier.get();
-        context.enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> ClientParticleEmittersPacketHandler.receive(packet)));
-        context.setPacketHandled(true);
+    public static void handle(PacketParticleEmittersS2C packet, IPayloadContext context) {
+        context.enqueueWork(() -> ClientParticleEmittersPacketHandler.receive(packet));
     }
+
+    @Override
+    public Type<? extends CustomPacketPayload> type() { return TYPE; }
 }

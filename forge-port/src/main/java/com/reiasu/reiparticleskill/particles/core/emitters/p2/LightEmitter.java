@@ -26,7 +26,7 @@ import java.util.UUID;
  */
 @ReiAutoRegister
  public final class LightEmitter extends AutoParticleEmitters {
-    public static final ResourceLocation CODEC_ID = new ResourceLocation("reiparticleskill", "light");
+    public static final ResourceLocation CODEC_ID = ResourceLocation.fromNamespaceAndPath("reiparticleskill", "light");
 
     private static final DustParticleOptions BOLT_COLOR =
             new DustParticleOptions(new Vector3f(0.85f, 0.92f, 1.0f), 0.55f);

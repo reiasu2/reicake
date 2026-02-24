@@ -8,7 +8,7 @@ import java.nio.ByteBuffer;
 
 public final class LongArrayControllerBuffer extends AbstractControllerBuffer<long[]> {
     public static final ParticleControllerDataBuffer.Id ID =
-            new ParticleControllerDataBuffer.Id(new ResourceLocation("reiparticlesapi", "long_array"));
+            new ParticleControllerDataBuffer.Id(ResourceLocation.fromNamespaceAndPath("reiparticlesapi", "long_array"));
 
     @Override
     public byte[] encode(long[] value) {

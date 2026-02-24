@@ -18,7 +18,7 @@ import java.util.UUID;
 
 @ReiAutoRegister
  public final class ParticleGroupEmitter extends AutoParticleEmitters {
-    public static final ResourceLocation CODEC_ID = new ResourceLocation("reiparticleskill", "particle_group");
+    public static final ResourceLocation CODEC_ID = ResourceLocation.fromNamespaceAndPath("reiparticleskill", "particle_group");
 
     private static final DustParticleOptions CORE_COLOR =
             new DustParticleOptions(new Vector3f(0.95f, 0.82f, 0.35f), 1.0f);

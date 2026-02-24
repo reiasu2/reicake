@@ -4,15 +4,18 @@ package com.reiasu.reiparticlesapi.network.packet;
 
 import com.reiasu.reiparticlesapi.network.packet.client.listener.ClientRenderEntityPacketHandler;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.network.NetworkEvent;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import java.util.UUID;
-import java.util.function.Supplier;
 
-public final class PacketRenderEntityS2C {
+public final class PacketRenderEntityS2C implements CustomPacketPayload {
+    public static final Type<PacketRenderEntityS2C> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath("reiparticlesapi", "packet_render_entity_s2c"));
+    public static final StreamCodec<RegistryFriendlyByteBuf, PacketRenderEntityS2C> STREAM_CODEC = StreamCodec.of((buf, pkt) -> encode(pkt, buf), PacketRenderEntityS2C::decode);
+
     public enum Method {
         CREATE(0),
         TOGGLE(1),
@@ -115,9 +118,10 @@ public final class PacketRenderEntityS2C {
         return new PacketRenderEntityS2C(uuid, entity, id, method);
     }
 
-    public static void handle(PacketRenderEntityS2C packet, Supplier<NetworkEvent.Context> contextSupplier) {
-        NetworkEvent.Context context = contextSupplier.get();
-        context.enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> ClientRenderEntityPacketHandler.receive(packet)));
-        context.setPacketHandled(true);
+    public static void handle(PacketRenderEntityS2C packet, IPayloadContext context) {
+        context.enqueueWork(() -> ClientRenderEntityPacketHandler.receive(packet));
     }
+
+    @Override
+    public Type<? extends CustomPacketPayload> type() { return TYPE; }
 }

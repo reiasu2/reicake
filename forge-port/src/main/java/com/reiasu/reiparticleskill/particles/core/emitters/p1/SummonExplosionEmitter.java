@@ -17,7 +17,7 @@ import java.util.UUID;
  * registered via ReiAutoRegister. Preserved for API compatibility.
  */
 public final class SummonExplosionEmitter extends AutoParticleEmitters {
-    public static final ResourceLocation CODEC_ID = new ResourceLocation("reiparticleskill", "summon_explosion");
+    public static final ResourceLocation CODEC_ID = ResourceLocation.fromNamespaceAndPath("reiparticleskill", "summon_explosion");
 
     public SummonExplosionEmitter(Vec3 pos, Level world) {
         Vec3 spawn = pos == null ? Vec3.ZERO : pos;

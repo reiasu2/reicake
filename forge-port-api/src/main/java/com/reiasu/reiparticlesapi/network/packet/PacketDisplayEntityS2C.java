@@ -4,16 +4,20 @@ package com.reiasu.reiparticlesapi.network.packet;
 
 import com.reiasu.reiparticlesapi.network.packet.client.listener.ClientDisplayEntityPacketHandler;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import java.util.UUID;
-import java.util.function.Supplier;
 
-public record PacketDisplayEntityS2C(UUID uuid, String type, byte[] data) {
+public record PacketDisplayEntityS2C(UUID uuid, String entityType, byte[] data) implements CustomPacketPayload {
+    public static final Type<PacketDisplayEntityS2C> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath("reiparticlesapi", "packet_display_entity_s2_c"));
+    public static final StreamCodec<RegistryFriendlyByteBuf, PacketDisplayEntityS2C> STREAM_CODEC = StreamCodec.of((buf, pkt) -> encode(pkt, buf), PacketDisplayEntityS2C::decode);
+
     public static void encode(PacketDisplayEntityS2C packet, FriendlyByteBuf buf) {
-        buf.writeUtf(packet.type);
+        buf.writeUtf(packet.entityType);
         buf.writeUUID(packet.uuid);
         buf.writeInt(packet.data.length);
         buf.writeBytes(packet.data);
@@ -28,9 +32,10 @@ public record PacketDisplayEntityS2C(UUID uuid, String type, byte[] data) {
         return new PacketDisplayEntityS2C(uuid, type, data);
     }
 
-    public static void handle(PacketDisplayEntityS2C packet, Supplier<NetworkEvent.Context> contextSupplier) {
-        NetworkEvent.Context context = contextSupplier.get();
-        context.enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> ClientDisplayEntityPacketHandler.receive(packet)));
-        context.setPacketHandled(true);
+    public static void handle(PacketDisplayEntityS2C packet, IPayloadContext context) {
+        context.enqueueWork(() -> ClientDisplayEntityPacketHandler.receive(packet));
     }
+
+    @Override
+    public Type<? extends CustomPacketPayload> type() { return TYPE; }
 }

@@ -7,20 +7,24 @@ import com.reiasu.reiparticlesapi.network.buffer.ParticleControllerDataBuffers;
 import com.reiasu.reiparticlesapi.network.packet.client.listener.ClientParticleGroupPacketHandler;
 import com.reiasu.reiparticlesapi.particles.control.ControlType;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.function.Supplier;
 
 public record PacketParticleGroupS2C(
         UUID uuid,
-        ControlType type,
+        ControlType controlType,
         Map<String, ParticleControllerDataBuffer<?>> args
-) {
+) implements CustomPacketPayload {
+    public static final Type<PacketParticleGroupS2C> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath("reiparticlesapi", "packet_particle_group_s2_c"));
+    public static final StreamCodec<RegistryFriendlyByteBuf, PacketParticleGroupS2C> STREAM_CODEC = StreamCodec.of((buf, pkt) -> encode(pkt, buf), PacketParticleGroupS2C::decode);
+
     public enum PacketArgsType {
         POS("pos"),
         CURRENT_TICK("current_tick"),
@@ -58,7 +62,7 @@ public record PacketParticleGroupS2C(
 
     public static void encode(PacketParticleGroupS2C packet, FriendlyByteBuf buf) {
         buf.writeUUID(packet.uuid);
-        buf.writeInt(packet.type.getId());
+        buf.writeInt(packet.controlType.getId());
         for (Map.Entry<String, ParticleControllerDataBuffer<?>> entry : packet.args.entrySet()) {
             byte[] encoded = ParticleControllerDataBuffers.INSTANCE.encode(entry.getValue());
             buf.writeInt(encoded.length);
@@ -81,9 +85,10 @@ public record PacketParticleGroupS2C(
         return new PacketParticleGroupS2C(uuid, type, args);
     }
 
-    public static void handle(PacketParticleGroupS2C packet, Supplier<NetworkEvent.Context> contextSupplier) {
-        NetworkEvent.Context context = contextSupplier.get();
-        context.enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> ClientParticleGroupPacketHandler.receive(packet)));
-        context.setPacketHandled(true);
+    public static void handle(PacketParticleGroupS2C packet, IPayloadContext context) {
+        context.enqueueWork(() -> ClientParticleGroupPacketHandler.receive(packet));
     }
+
+    @Override
+    public Type<? extends CustomPacketPayload> type() { return TYPE; }
 }

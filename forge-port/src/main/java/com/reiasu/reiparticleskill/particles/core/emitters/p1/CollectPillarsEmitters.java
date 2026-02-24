@@ -33,7 +33,7 @@ import java.util.UUID;
  */
 @ReiAutoRegister
  public final class CollectPillarsEmitters extends AutoParticleEmitters {
-    public static final ResourceLocation CODEC_ID = new ResourceLocation("reiparticleskill", "collect_pillars");
+    public static final ResourceLocation CODEC_ID = ResourceLocation.fromNamespaceAndPath("reiparticleskill", "collect_pillars");
 
     private static final DustParticleOptions PILLAR_COLOR =
             new DustParticleOptions(new Vector3f(0.45f, 0.15f, 0.75f), 0.5f);

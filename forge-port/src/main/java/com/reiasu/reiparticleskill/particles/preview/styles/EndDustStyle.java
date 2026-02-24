@@ -33,7 +33,7 @@ import java.util.UUID;
  */
 @ReiAutoRegister
  public final class EndDustStyle extends ParticleGroupStyle {
-    public static final ResourceLocation REGISTRY_KEY = new ResourceLocation("reiparticleskill", "end_dust_style");
+    public static final ResourceLocation REGISTRY_KEY = ResourceLocation.fromNamespaceAndPath("reiparticleskill", "end_dust_style");
     private static final DustParticleOptions DUST_COLOR =
             new DustParticleOptions(new Vector3f(210f / 255f, 80f / 255f, 1.0f), 0.55f);
 

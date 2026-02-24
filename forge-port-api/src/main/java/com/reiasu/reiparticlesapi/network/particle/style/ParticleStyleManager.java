@@ -24,6 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class ParticleStyleManager {
     private static final Map<UUID, ParticleGroupStyle> SERVER_VIEW_STYLES = new ConcurrentHashMap<>();
     private static final Map<UUID, Set<UUID>> VISIBLE = new ConcurrentHashMap<>();
+    private static final Map<UUID, Set<UUID>> STYLE_TO_PLAYERS = new ConcurrentHashMap<>();
     private static final Map<UUID, ParticleGroupStyle> CLIENT_VIEW_STYLES = new ConcurrentHashMap<>();
 
     private ParticleStyleManager() {
@@ -127,13 +128,8 @@ public final class ParticleStyleManager {
     }
 
     private static Set<UUID> filterVisiblePlayer(UUID styleId) {
-        Set<UUID> result = new HashSet<>();
-        for (Map.Entry<UUID, Set<UUID>> entry : VISIBLE.entrySet()) {
-            if (entry.getValue().contains(styleId)) {
-                result.add(entry.getKey());
-            }
-        }
-        return result;
+        Set<UUID> players = STYLE_TO_PLAYERS.get(styleId);
+        return players != null ? new HashSet<>(players) : new HashSet<>();
     }
 
     private static void upgradeVisible(ParticleGroupStyle style, ServerLevel level) {
@@ -170,6 +166,10 @@ public final class ParticleStyleManager {
     private static void removeStylePlayerView(ServerPlayer player, ParticleGroupStyle style) {
         Set<UUID> visibleSet = VISIBLE.computeIfAbsent(player.getUUID(), ignored -> ConcurrentHashMap.newKeySet());
         visibleSet.remove(style.getUuid());
+        Set<UUID> stylePlayers = STYLE_TO_PLAYERS.get(style.getUuid());
+        if (stylePlayers != null) {
+            stylePlayers.remove(player.getUUID());
+        }
         PacketParticleStyleS2C packet = new PacketParticleStyleS2C(style.getUuid(), ControlType.REMOVE, Map.of());
         ReiParticlesNetwork.sendTo(player, packet);
     }
@@ -179,6 +179,8 @@ public final class ParticleStyleManager {
         if (!visibleSet.add(style.getUuid())) {
             return;
         }
+        STYLE_TO_PLAYERS.computeIfAbsent(style.getUuid(), ignored -> ConcurrentHashMap.newKeySet())
+                .add(player.getUUID());
         PacketParticleStyleS2C packet = buildCreatePacket(style, style.getPos());
         ReiParticlesNetwork.sendTo(player, packet);
     }
@@ -216,6 +218,7 @@ public final class ParticleStyleManager {
 
     private static void removeAllPlayerView(ParticleGroupStyle style, ServerLevel level) {
         UUID styleId = style.getUuid();
+        STYLE_TO_PLAYERS.remove(styleId);
         for (Map.Entry<UUID, Set<UUID>> entry : VISIBLE.entrySet()) {
             UUID playerId = entry.getKey();
             Set<UUID> visibleSet = entry.getValue();
@@ -236,6 +239,7 @@ public final class ParticleStyleManager {
     private static void pruneDisconnectedPlayers() {
         if (SERVER_VIEW_STYLES.isEmpty()) {
             VISIBLE.clear();
+            STYLE_TO_PLAYERS.clear();
             return;
         }
         VISIBLE.entrySet().removeIf(entry -> {
@@ -245,6 +249,12 @@ public final class ParticleStyleManager {
                     if (level.getServer().getPlayerList().getPlayer(playerId) != null) {
                         return false;
                     }
+                }
+            }
+            for (UUID styleId : entry.getValue()) {
+                Set<UUID> stylePlayers = STYLE_TO_PLAYERS.get(styleId);
+                if (stylePlayers != null) {
+                    stylePlayers.remove(playerId);
                 }
             }
             return true;

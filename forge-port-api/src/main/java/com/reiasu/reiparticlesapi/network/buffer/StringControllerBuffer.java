@@ -8,7 +8,7 @@ import java.nio.charset.StandardCharsets;
 
 public final class StringControllerBuffer extends AbstractControllerBuffer<String> {
     public static final ParticleControllerDataBuffer.Id ID =
-            new ParticleControllerDataBuffer.Id(new ResourceLocation("reiparticlesapi", "string"));
+            new ParticleControllerDataBuffer.Id(ResourceLocation.fromNamespaceAndPath("reiparticlesapi", "string"));
 
     @Override
     public byte[] encode(String value) {

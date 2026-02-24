@@ -26,7 +26,7 @@ import java.util.Random;
  */
 public final class LightningClassParticleEmitters extends ClassParticleEmitters {
 
-    public static final ResourceLocation ID = new ResourceLocation("reiparticlesapi", "lightning_class");
+    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath("reiparticlesapi", "lightning_class");
 
     private ControllableParticleData templateData = new ControllableParticleData();
     private final Random random = new Random(System.currentTimeMillis());

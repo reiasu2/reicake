@@ -27,7 +27,7 @@ import java.util.UUID;
  */
 public final class DefendClassParticleEmitters extends ClassParticleEmitters {
 
-    public static final ResourceLocation ID = new ResourceLocation("reiparticlesapi", "defend_class");
+    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath("reiparticlesapi", "defend_class");
 
     private ControllableParticleData templateData = new ControllableParticleData();
     private final Random random = new Random(System.currentTimeMillis());

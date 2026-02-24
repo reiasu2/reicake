@@ -173,7 +173,7 @@ public final class HugeSwordFormation extends ServerOnlyDisplayGroup {
 
     private void playSwordSound() {
         Level level = getWorld();
-        if (!(level instanceof ServerLevel serverLevel) || !SkillSoundEvents.SWORD_FORMATION.isPresent()) {
+        if (!(level instanceof ServerLevel serverLevel) || !SkillSoundEvents.SWORD_FORMATION.isBound()) {
             return;
         }
         Vec3 pos = getPos();

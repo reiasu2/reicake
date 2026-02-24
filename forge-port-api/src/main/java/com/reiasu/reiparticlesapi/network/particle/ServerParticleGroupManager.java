@@ -26,6 +26,7 @@ public final class ServerParticleGroupManager {
 
     private final ConcurrentHashMap<UUID, ServerParticleGroup> groups = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<UUID, Set<ServerParticleGroup>> visible = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<UUID, Set<UUID>> groupToPlayers = new ConcurrentHashMap<>();
 
     private ServerParticleGroupManager() {}
 
@@ -41,9 +42,14 @@ public final class ServerParticleGroupManager {
 
     public void removeParticleGroup(ServerParticleGroup group) {
         groups.remove(group.getUuid());
-        // Clean up visibility entries
-        for (Map.Entry<UUID, Set<ServerParticleGroup>> entry : visible.entrySet()) {
-            entry.getValue().remove(group);
+        Set<UUID> players = groupToPlayers.remove(group.getUuid());
+        if (players != null) {
+            for (UUID playerId : players) {
+                Set<ServerParticleGroup> visibleSet = visible.get(playerId);
+                if (visibleSet != null) {
+                    visibleSet.remove(group);
+                }
+            }
         }
     }
 
@@ -51,13 +57,8 @@ public final class ServerParticleGroupManager {
      * Returns the set of player UUIDs that can currently see the given group.
      */
     public Set<UUID> filterVisiblePlayer(ServerParticleGroup group) {
-        Set<UUID> result = new HashSet<>();
-        for (Map.Entry<UUID, Set<ServerParticleGroup>> entry : visible.entrySet()) {
-            if (entry.getValue().contains(group)) {
-                result.add(entry.getKey());
-            }
-        }
-        return result;
+        Set<UUID> players = groupToPlayers.get(group.getUuid());
+        return players != null ? new HashSet<>(players) : new HashSet<>();
     }
 
     /**
@@ -67,10 +68,12 @@ public final class ServerParticleGroupManager {
         if (server == null) return;
         clearOfflineVisible(server);
 
-        List<ServerParticleGroup> groupList = new ArrayList<>(groups.values());
-        for (ServerParticleGroup group : groupList) {
+        Iterator<ServerParticleGroup> groupIterator = groups.values().iterator();
+        while (groupIterator.hasNext()) {
+            ServerParticleGroup group = groupIterator.next();
             if (group.getCanceled() || !group.getValid()) {
-                groups.remove(group.getUuid());
+                groupIterator.remove();
+                groupToPlayers.remove(group.getUuid());
                 continue;
             }
 
@@ -87,6 +90,7 @@ public final class ServerParticleGroupManager {
                     if (visibleSet.contains(group)) {
                         removeGroupPlayerView(player, group);
                         visibleSet.remove(group);
+                        unlinkPlayerGroup(player.getUUID(), group.getUuid());
                     }
                     continue;
                 }
@@ -96,6 +100,7 @@ public final class ServerParticleGroupManager {
                     if (visibleSet.contains(group)) {
                         removeGroupPlayerView(player, group);
                         visibleSet.remove(group);
+                        unlinkPlayerGroup(player.getUUID(), group.getUuid());
                     }
                     continue;
                 }
@@ -111,6 +116,7 @@ public final class ServerParticleGroupManager {
                         removeGroupPlayerView(player, group);
                     }
                     visibleSet.remove(group);
+                    unlinkPlayerGroup(player.getUUID(), group.getUuid());
                 }
             }
 
@@ -124,8 +130,19 @@ public final class ServerParticleGroupManager {
             Map.Entry<UUID, Set<ServerParticleGroup>> entry = it.next();
             ServerPlayer player = server.getPlayerList().getPlayer(entry.getKey());
             if (player == null || player.hasDisconnected()) {
+                UUID playerId = entry.getKey();
+                for (ServerParticleGroup g : entry.getValue()) {
+                    unlinkPlayerGroup(playerId, g.getUuid());
+                }
                 it.remove();
             }
+        }
+    }
+
+    private void unlinkPlayerGroup(UUID playerId, UUID groupId) {
+        Set<UUID> players = groupToPlayers.get(groupId);
+        if (players != null) {
+            players.remove(playerId);
         }
     }
 
@@ -147,7 +164,7 @@ public final class ServerParticleGroupManager {
 
     private void removeGroupPlayerView(ServerPlayer target, ServerParticleGroup targetGroup) {
         PacketParticleGroupS2C packet = new PacketParticleGroupS2C(
-                targetGroup.getUuid(), ControlType.REMOVE, new HashMap<>());
+                targetGroup.getUuid(), ControlType.REMOVE, Map.of());
         ReiParticlesNetwork.sendTo(target, packet);
     }
 
@@ -155,6 +172,8 @@ public final class ServerParticleGroupManager {
         Set<ServerParticleGroup> visibleSet = visible.computeIfAbsent(
                 target.getUUID(), k -> ConcurrentHashMap.newKeySet());
         visibleSet.add(targetGroup);
+        groupToPlayers.computeIfAbsent(targetGroup.getUuid(), k -> ConcurrentHashMap.newKeySet())
+                .add(target.getUUID());
 
         Map<String, ParticleControllerDataBuffer<?>> args = new HashMap<>();
         args.put(PacketParticleGroupS2C.PacketArgsType.POS.getOfArgs(),

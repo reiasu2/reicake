@@ -1,7 +1,7 @@
 pluginManagement {
     repositories {
         gradlePluginPortal()
-        maven { url = 'https://maven.minecraftforge.net' }
+        maven { url = 'https://maven.neoforged.net/releases' }
         mavenCentral()
     }
 }
@@ -10,7 +10,7 @@ plugins {
     id 'org.gradle.toolchains.foojay-resolver-convention' version '0.8.0'
 }
 
-rootProject.name = 'reiparticleskill-forge-port'
+rootProject.name = 'reiparticleskill-neoforge'
 
 // Composite build: resolve forge-port-api from the sibling project instead of a pre-built jar.
 includeBuild('../forge-port-api') {

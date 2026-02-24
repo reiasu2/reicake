@@ -27,7 +27,7 @@ import java.util.Random;
  */
 public final class PresetTestEmitters extends ClassParticleEmitters {
 
-    public static final ResourceLocation ID = new ResourceLocation("reiparticlesapi", "preset_test");
+    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath("reiparticlesapi", "preset_test");
 
     private ControllableParticleData templateData = new ControllableParticleData();
     private final Random random = new Random(System.currentTimeMillis());

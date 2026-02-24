@@ -27,7 +27,7 @@ import java.util.Random;
  */
 public final class FireClassParticleEmitters extends ClassParticleEmitters {
 
-    public static final ResourceLocation ID = new ResourceLocation("reiparticlesapi", "fire_class");
+    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath("reiparticlesapi", "fire_class");
 
     private ControllableParticleData templateData = new ControllableParticleData();
     private final Random random = new Random(System.currentTimeMillis());

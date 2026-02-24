@@ -130,7 +130,7 @@ public abstract class ServerParticleGroup implements ServerController<ServerPart
         for (UUID playerId : visible) {
             if (world.getPlayerByUUID(playerId) instanceof ServerPlayer sp) {
                 PacketParticleGroupS2C packet = new PacketParticleGroupS2C(
-                        uuid, ControlType.REMOVE, new HashMap<>());
+                        uuid, ControlType.REMOVE, Map.of());
                 ReiParticlesNetwork.sendTo(sp, packet);
             }
         }

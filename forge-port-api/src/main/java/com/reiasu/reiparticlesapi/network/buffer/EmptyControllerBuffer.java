@@ -6,7 +6,7 @@ import net.minecraft.resources.ResourceLocation;
 
 public final class EmptyControllerBuffer extends AbstractControllerBuffer<Void> {
     public static final ParticleControllerDataBuffer.Id ID =
-            new ParticleControllerDataBuffer.Id(new ResourceLocation("reiparticlesapi", "empty"));
+            new ParticleControllerDataBuffer.Id(ResourceLocation.fromNamespaceAndPath("reiparticlesapi", "empty"));
 
     @Override
     public byte[] encode(Void value) {

@@ -36,9 +36,6 @@ import org.slf4j.Logger;
  */
 public final class ReiParticlesAPI {
     public static final ReiParticlesAPI INSTANCE = new ReiParticlesAPI();
-    /** @deprecated Use {@link #reiScheduler()} for new code. This scheduler only supports one-shot server tasks. */
-    @Deprecated
-    public static final Scheduler scheduler = new Scheduler();
     private static final Logger LOGGER = LogUtils.getLogger();
     private static boolean initialized;
     private static boolean scannersLoaded;
@@ -140,29 +137,6 @@ public final class ReiParticlesAPI {
      */
     public static ReiScheduler reiScheduler() {
         return ReiScheduler.INSTANCE;
-    }
-
-    /**
-     * Legacy scheduler stub that delegates all calls to {@link ReiScheduler}.
-     *
-     * @deprecated Use {@link #reiScheduler()} instead. This class is a thin delegate
-     *             and will be removed in a future version.
-     */
-    @Deprecated
-    public static final class Scheduler {
-
-        /** Delegates to {@link ReiScheduler#runTask(int, Runnable)}. */
-        public void runTask(int ticks, Runnable task) {
-            ReiScheduler.INSTANCE.runTask(Math.max(1, ticks), task);
-        }
-
-        /** No-op — {@link ReiScheduler} is ticked by the API tick handler. */
-        public void tick() {
-        }
-
-        /** No-op — lifecycle managed by {@link ReiScheduler}. */
-        public void shutdown() {
-        }
     }
 
     private static SimpleTestGroupBuilder buildSmokeTestGroup(ServerPlayer user) {

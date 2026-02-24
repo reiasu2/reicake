@@ -1,0 +1,21 @@
+{
+  "description": {
+    "translate": "enchantment.reiparticleskill.sword_light"
+  },
+  "exclusive_set": "#minecraft:exclusive_set/damage",
+  "supported_items": "#minecraft:enchantable/sword",
+  "weight": 2,
+  "max_level": 1,
+  "min_cost": {
+    "base": 5,
+    "per_level_above_first": 6
+  },
+  "max_cost": {
+    "base": 7,
+    "per_level_above_first": 6
+  },
+  "anvil_cost": 4,
+  "slots": [
+    "mainhand"
+  ]
+}

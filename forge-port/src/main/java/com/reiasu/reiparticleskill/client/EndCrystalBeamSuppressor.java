@@ -2,48 +2,23 @@
 // Copyright (C) 2025 Reiasu
 package com.reiasu.reiparticleskill.client;
 
-import com.reiasu.reiparticleskill.ReiParticleSkillForge;
-import net.minecraft.client.Minecraft;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.boss.enderdragon.EndCrystal;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.RenderLevelStageEvent;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-
 /**
- * Suppresses the vanilla End Crystal beam rendering by clearing
- * beamTarget at multiple points: both during client tick AND right
- * before entity rendering. This eliminates flashing caused by
- * server data sync restoring beamTarget between tick and render.
+ * Formerly suppressed End Crystal beam via brute-force event listeners
+ * (ClientTickEvent + RenderLevelStageEvent) that iterated all entities.
+ * <p>
+ * Removed to reduce mod conflicts: the {@code @EventBusSubscriber} caused
+ * this class to always participate in the event chain regardless of config,
+ * and mutating entity state globally conflicted with other mods.
+ * <p>
+ * Beam suppression is now handled solely by
+ * {@link com.reiasu.reiparticleskill.mixin.EndCrystalRendererMixin},
+ * which uses a surgical {@code @Redirect} on {@code getBeamTarget()} and
+ * is gated by {@link com.reiasu.reiparticleskill.config.SkillClientConfig#isSuppressCrystalBeam()}.
+ *
+ * @deprecated No longer used. Will be removed in a future version.
  */
-@Mod.EventBusSubscriber(modid = ReiParticleSkillForge.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
+@Deprecated
 public final class EndCrystalBeamSuppressor {
-
     private EndCrystalBeamSuppressor() {
-    }
-
-    @SubscribeEvent
-    public static void onClientTick(TickEvent.ClientTickEvent event) {
-        if (event.phase != TickEvent.Phase.END) return;
-        clearBeamTargets();
-    }
-
-    @SubscribeEvent(priority = EventPriority.HIGHEST)
-    public static void onRenderLevel(RenderLevelStageEvent event) {
-        if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_SKY) return;
-        clearBeamTargets();
-    }
-
-    private static void clearBeamTargets() {
-        Minecraft mc = Minecraft.getInstance();
-        if (mc.level == null) return;
-        for (Entity entity : mc.level.entitiesForRendering()) {
-            if (entity instanceof EndCrystal crystal && crystal.getBeamTarget() != null) {
-                crystal.setBeamTarget(null);
-            }
-        }
     }
 }

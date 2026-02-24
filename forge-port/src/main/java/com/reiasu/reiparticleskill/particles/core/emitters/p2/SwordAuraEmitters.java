@@ -26,7 +26,7 @@ import java.util.UUID;
  */
 @ReiAutoRegister
  public final class SwordAuraEmitters extends AutoParticleEmitters {
-    public static final ResourceLocation CODEC_ID = new ResourceLocation("reiparticleskill", "sword_aura");
+    public static final ResourceLocation CODEC_ID = ResourceLocation.fromNamespaceAndPath("reiparticleskill", "sword_aura");
 
     private final RandomSource random = RandomSource.create();
     private final List<AuraParticle> particles = new ArrayList<>();

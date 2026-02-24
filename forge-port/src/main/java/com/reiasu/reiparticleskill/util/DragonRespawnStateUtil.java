@@ -198,7 +198,7 @@ public final class DragonRespawnStateUtil {
                 .min(Comparator.comparingDouble(d -> d.position().distanceTo(summonPos)))
                 .ifPresent(dragon -> {
                     dragon.setInvulnerable(true);
-                    ReiParticlesAPI.scheduler.runTask(20, () -> dragon.setInvulnerable(false));
+                    ReiParticlesAPI.reiScheduler().runTask(20, () -> dragon.setInvulnerable(false));
                 });
     }
 

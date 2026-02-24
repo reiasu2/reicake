@@ -32,7 +32,7 @@ import java.util.UUID;
 
 @ReiAutoRegister
  public final class LargeMagicCircleStyle extends ParticleGroupStyle {
-    public static final ResourceLocation REGISTRY_KEY = new ResourceLocation("reiparticleskill", "large_magic_circle_style");
+    public static final ResourceLocation REGISTRY_KEY = ResourceLocation.fromNamespaceAndPath("reiparticleskill", "large_magic_circle_style");
     private static final DustParticleOptions PRIMARY_COLOR =
             new DustParticleOptions(new Vector3f(0.95f, 0.82f, 0.35f), 1.0f);
     private static final DustParticleOptions SECONDARY_COLOR =

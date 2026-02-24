@@ -36,7 +36,7 @@ import java.util.UUID;
  */
 @ReiAutoRegister
  public final class EnderRespawnWaveCloudStyle extends ParticleGroupStyle {
-    public static final ResourceLocation REGISTRY_KEY = new ResourceLocation("reiparticleskill", "ender_respawn_wave_cloud_style");
+    public static final ResourceLocation REGISTRY_KEY = ResourceLocation.fromNamespaceAndPath("reiparticleskill", "ender_respawn_wave_cloud_style");
     private static final DustParticleOptions CLOUD_COLOR =
             new DustParticleOptions(new Vector3f(210f / 255f, 80f / 255f, 1.0f), 0.5f);
 

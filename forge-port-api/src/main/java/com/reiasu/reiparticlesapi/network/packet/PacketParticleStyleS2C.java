@@ -7,27 +7,31 @@ import com.reiasu.reiparticlesapi.network.buffer.ParticleControllerDataBuffers;
 import com.reiasu.reiparticlesapi.network.packet.client.listener.ClientParticleStylePacketHandler;
 import com.reiasu.reiparticlesapi.particles.control.ControlType;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.function.Supplier;
 
 public record PacketParticleStyleS2C(
         UUID uuid,
-        ControlType type,
+        ControlType controlType,
         Map<String, ParticleControllerDataBuffer<?>> args
-) {
+) implements CustomPacketPayload {
+    public static final Type<PacketParticleStyleS2C> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath("reiparticlesapi", "packet_particle_style_s2_c"));
+    public static final StreamCodec<RegistryFriendlyByteBuf, PacketParticleStyleS2C> STREAM_CODEC = StreamCodec.of((buf, pkt) -> encode(pkt, buf), PacketParticleStyleS2C::decode);
+
     public PacketParticleStyleS2C {
         args = Map.copyOf(args);
     }
 
     public static void encode(PacketParticleStyleS2C packet, FriendlyByteBuf buf) {
         buf.writeUUID(packet.uuid);
-        buf.writeInt(packet.type.getId());
+        buf.writeInt(packet.controlType.getId());
         buf.writeInt(packet.args.size());
         for (Map.Entry<String, ParticleControllerDataBuffer<?>> entry : packet.args.entrySet()) {
             byte[] encoded = ParticleControllerDataBuffers.INSTANCE.encode(entry.getValue());
@@ -52,9 +56,10 @@ public record PacketParticleStyleS2C(
         return new PacketParticleStyleS2C(uuid, type, args);
     }
 
-    public static void handle(PacketParticleStyleS2C packet, Supplier<NetworkEvent.Context> contextSupplier) {
-        NetworkEvent.Context context = contextSupplier.get();
-        context.enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> ClientParticleStylePacketHandler.receive(packet)));
-        context.setPacketHandled(true);
+    public static void handle(PacketParticleStyleS2C packet, IPayloadContext context) {
+        context.enqueueWork(() -> ClientParticleStylePacketHandler.receive(packet));
     }
+
+    @Override
+    public Type<? extends CustomPacketPayload> type() { return TYPE; }
 }

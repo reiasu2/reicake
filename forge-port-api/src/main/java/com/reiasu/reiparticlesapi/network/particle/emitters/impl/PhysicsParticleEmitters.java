@@ -29,7 +29,7 @@ import java.util.Random;
  */
 public final class PhysicsParticleEmitters extends ClassParticleEmitters {
 
-    public static final ResourceLocation ID = new ResourceLocation("reiparticlesapi", "physics_particle");
+    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath("reiparticlesapi", "physics_particle");
 
     private ControllableParticleData templateData = new ControllableParticleData();
     private final Random random = new Random(System.currentTimeMillis());

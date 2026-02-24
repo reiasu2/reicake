@@ -34,7 +34,7 @@ import java.util.UUID;
  */
 @ReiAutoRegister
  public final class RailgunBeamStyle extends ParticleGroupStyle {
-    public static final ResourceLocation REGISTRY_KEY = new ResourceLocation("reiparticleskill", "railgun_beam_style");
+    public static final ResourceLocation REGISTRY_KEY = ResourceLocation.fromNamespaceAndPath("reiparticleskill", "railgun_beam_style");
     private static final DustParticleOptions BEAM_COLOR =
             new DustParticleOptions(new Vector3f(210f / 255f, 80f / 255f, 1.0f), 0.75f);
     private static final DustParticleOptions GLOW_COLOR =

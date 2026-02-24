@@ -8,7 +8,7 @@ import java.nio.ByteBuffer;
 
 public final class DoubleControllerBuffer extends AbstractControllerBuffer<Double> {
     public static final ParticleControllerDataBuffer.Id ID =
-            new ParticleControllerDataBuffer.Id(new ResourceLocation("reiparticlesapi", "double"));
+            new ParticleControllerDataBuffer.Id(ResourceLocation.fromNamespaceAndPath("reiparticlesapi", "double"));
 
     @Override
     public byte[] encode(Double value) {

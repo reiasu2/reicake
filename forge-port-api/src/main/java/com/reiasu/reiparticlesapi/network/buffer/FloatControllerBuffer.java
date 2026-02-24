@@ -8,7 +8,7 @@ import java.nio.ByteBuffer;
 
 public final class FloatControllerBuffer extends AbstractControllerBuffer<Float> {
     public static final ParticleControllerDataBuffer.Id ID =
-            new ParticleControllerDataBuffer.Id(new ResourceLocation("reiparticlesapi", "float"));
+            new ParticleControllerDataBuffer.Id(ResourceLocation.fromNamespaceAndPath("reiparticlesapi", "float"));
 
     @Override
     public byte[] encode(Float value) {

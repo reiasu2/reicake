@@ -24,7 +24,7 @@ import java.util.Map;
  */
 public final class ExampleClassParticleEmitters extends ClassParticleEmitters {
 
-    public static final ResourceLocation ID = new ResourceLocation("reiparticlesapi", "example_class");
+    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath("reiparticlesapi", "example_class");
 
     private ControllableParticleData templateData = new ControllableParticleData();
     private Vec3 moveDirection = Vec3.ZERO;

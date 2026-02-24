@@ -13,7 +13,7 @@ import org.joml.Vector3f;
 import java.util.UUID;
 
 public class DebugParticleEmitters extends ParticleEmitters {
-    public static final ResourceLocation CODEC_ID = new ResourceLocation("reiparticlesapi", "debug_particle");
+    public static final ResourceLocation CODEC_ID = ResourceLocation.fromNamespaceAndPath("reiparticlesapi", "debug_particle");
     private final double x;
     private final double y;
     private final double z;

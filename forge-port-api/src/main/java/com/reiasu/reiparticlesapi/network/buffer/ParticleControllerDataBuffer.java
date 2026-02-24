@@ -36,7 +36,7 @@ public interface ParticleControllerDataBuffer<T> {
             if (split.length != 2 || split[0].isBlank() || split[1].isBlank()) {
                 throw new IllegalArgumentException("Invalid ID format: " + string);
             }
-            return new Id(new ResourceLocation(split[0], split[1]));
+            return new Id(ResourceLocation.fromNamespaceAndPath(split[0], split[1]));
         }
     }
 }

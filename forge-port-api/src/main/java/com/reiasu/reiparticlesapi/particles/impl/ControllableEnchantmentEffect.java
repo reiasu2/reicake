@@ -5,8 +5,6 @@ package com.reiasu.reiparticlesapi.particles.impl;
 import com.reiasu.reiparticlesapi.particles.ControllableParticleEffect;
 import com.reiasu.reiparticlesapi.particles.ReiModParticles;
 import net.minecraft.core.particles.ParticleType;
-import net.minecraft.network.FriendlyByteBuf;
-
 import java.util.UUID;
 
 public class ControllableEnchantmentEffect implements ControllableParticleEffect {
@@ -36,8 +34,4 @@ public class ControllableEnchantmentEffect implements ControllableParticleEffect
     @Override public boolean getFaceToPlayer() { return faceToPlayer; }
 
     @Override public ParticleType<?> getType() { return ReiModParticles.CONTROLLABLE_ENCHANTMENT.get(); }
-    @Override public void writeToNetwork(FriendlyByteBuf buf) {
-        buf.writeUUID(uuid); buf.writeBoolean(faceToPlayer);
-    }
-    @Override public String writeToString() { return "coo:enchantment"; }
 }

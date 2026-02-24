@@ -103,10 +103,10 @@ public final class ExpressionEvaluator {
                 x *= parsePower();
             } else if (consume('/')) {
                 double d = parsePower();
-                x = (d == 0) ? 0 : x / d;
+                x = x / d;
             } else if (consume('%')) {
                 double d = parsePower();
-                x = (d == 0) ? 0 : x % d;
+                x = x % d;
             } else {
                 return x;
             }

@@ -16,7 +16,7 @@ public final class ClientDisplayEntityPacketHandler {
 
     public static void receive(PacketDisplayEntityS2C packet) {
         Function<FriendlyByteBuf, DisplayEntity> decoder =
-                DisplayEntityManager.INSTANCE.getRegisteredTypes().get(packet.type());
+                DisplayEntityManager.INSTANCE.getRegisteredTypes().get(packet.entityType());
         if (decoder == null) {
             return;
         }

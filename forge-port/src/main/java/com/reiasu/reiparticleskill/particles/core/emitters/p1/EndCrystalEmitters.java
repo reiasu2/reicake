@@ -29,7 +29,7 @@ import java.util.UUID;
  */
 @ReiAutoRegister
  public final class EndCrystalEmitters extends AutoParticleEmitters {
-    public static final ResourceLocation CODEC_ID = new ResourceLocation("reiparticleskill", "end_crystal");
+    public static final ResourceLocation CODEC_ID = ResourceLocation.fromNamespaceAndPath("reiparticleskill", "end_crystal");
 
     private static final DustParticleOptions CRYSTAL_COLOR =
             new DustParticleOptions(new Vector3f(0.45f, 0.15f, 0.75f), 0.5f);

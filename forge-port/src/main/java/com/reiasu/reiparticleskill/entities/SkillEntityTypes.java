@@ -5,16 +5,16 @@ package com.reiasu.reiparticleskill.entities;
 import com.reiasu.reiparticleskill.ReiParticleSkillForge;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.bus.api.IEventBus;
+import net.minecraft.core.registries.Registries;
+import net.neoforged.neoforge.registries.DeferredHolder;
+import net.neoforged.neoforge.registries.DeferredRegister;
 
 public final class SkillEntityTypes {
     public static final DeferredRegister<EntityType<?>> ENTITIES =
-            DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, ReiParticleSkillForge.MOD_ID);
+            DeferredRegister.create(Registries.ENTITY_TYPE, ReiParticleSkillForge.MOD_ID);
 
-    public static final RegistryObject<EntityType<BarrageItemEntity>> BARRAGE_ITEM =
+    public static final DeferredHolder<EntityType<?>, EntityType<BarrageItemEntity>> BARRAGE_ITEM =
             ENTITIES.register("barrage_item", () ->
                     EntityType.Builder.<BarrageItemEntity>of(BarrageItemEntity::new, MobCategory.MISC)
                             .sized(0.4F, 0.4F)

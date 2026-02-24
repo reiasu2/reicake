@@ -4,14 +4,18 @@ package com.reiasu.reiparticlesapi.network.packet;
 
 import com.reiasu.reiparticlesapi.network.packet.client.listener.ClientParticleCompositionHandler;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import java.util.UUID;
-import java.util.function.Supplier;
 
-public final class PacketParticleCompositionS2C {
+public final class PacketParticleCompositionS2C implements CustomPacketPayload {
+    public static final Type<PacketParticleCompositionS2C> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath("reiparticlesapi", "packet_particle_composition_s2c"));
+    public static final StreamCodec<RegistryFriendlyByteBuf, PacketParticleCompositionS2C> STREAM_CODEC = StreamCodec.of((buf, pkt) -> encode(pkt, buf), PacketParticleCompositionS2C::decode);
+
     private final UUID uuid;
     private final String type;
     private final byte[] data;
@@ -63,9 +67,10 @@ public final class PacketParticleCompositionS2C {
         return packet;
     }
 
-    public static void handle(PacketParticleCompositionS2C packet, Supplier<NetworkEvent.Context> contextSupplier) {
-        NetworkEvent.Context context = contextSupplier.get();
-        context.enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> ClientParticleCompositionHandler.receive(packet)));
-        context.setPacketHandled(true);
+    public static void handle(PacketParticleCompositionS2C packet, IPayloadContext context) {
+        context.enqueueWork(() -> ClientParticleCompositionHandler.receive(packet));
     }
+
+    @Override
+    public Type<? extends CustomPacketPayload> type() { return TYPE; }
 }

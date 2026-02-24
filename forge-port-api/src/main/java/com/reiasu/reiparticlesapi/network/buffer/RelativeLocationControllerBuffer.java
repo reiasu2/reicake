@@ -9,7 +9,7 @@ import java.nio.ByteBuffer;
 
 public final class RelativeLocationControllerBuffer extends AbstractControllerBuffer<RelativeLocation> {
     public static final ParticleControllerDataBuffer.Id ID =
-            new ParticleControllerDataBuffer.Id(new ResourceLocation("reiparticlesapi", "relative_location"));
+            new ParticleControllerDataBuffer.Id(ResourceLocation.fromNamespaceAndPath("reiparticlesapi", "relative_location"));
 
     @Override
     public byte[] encode(RelativeLocation value) {

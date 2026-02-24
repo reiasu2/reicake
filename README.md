@@ -1,8 +1,8 @@
-# ReiParticleSkill Forge (1.20.1)
+# ReiParticleSkill NeoForge (1.21.1)
 
 [![License: LGPL-3.0-only](https://img.shields.io/badge/License-LGPL--3.0--only-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
 
-A Minecraft Forge 1.20.1 particle effects mod featuring custom Ender Dragon respawn animations and visual effects.
+A Minecraft NeoForge 1.21.1 particle effects mod featuring custom Ender Dragon respawn animations and visual effects.
 
 ## Modules
 
@@ -15,9 +15,9 @@ Both jars must be placed in the `mods/` folder.
 
 ## Requirements
 
-- Minecraft 1.20.1
-- Forge 47.2.0
-- Java 17
+- Minecraft 1.21.1
+- NeoForge 21.1.173
+- Java 21
 
 ## Building
 

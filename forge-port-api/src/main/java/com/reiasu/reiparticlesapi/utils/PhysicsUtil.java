@@ -32,7 +32,7 @@ public final class PhysicsUtil {
                 currentPos.add(velocity),
                 ClipContext.Block.COLLIDER,
                 ClipContext.Fluid.NONE,
-                null
+                (net.minecraft.world.entity.Entity) null
         );
         return world.clip(context);
     }
@@ -58,7 +58,7 @@ public final class PhysicsUtil {
     }
 
     public static RelativeLocation steer(RelativeLocation velocity, RelativeLocation desired, double blend) {
-        double clampedBlend = Math3DUtil.clamp(blend, 0.0, 1.0);
+        double clampedBlend = Math.clamp(blend, 0.0, 1.0);
         velocity.setX(Math3DUtil.lerp(velocity.getX(), desired.getX(), clampedBlend));
         velocity.setY(Math3DUtil.lerp(velocity.getY(), desired.getY(), clampedBlend));
         velocity.setZ(Math3DUtil.lerp(velocity.getZ(), desired.getZ(), clampedBlend));

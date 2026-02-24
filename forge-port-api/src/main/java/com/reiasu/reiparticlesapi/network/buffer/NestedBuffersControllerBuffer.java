@@ -18,7 +18,7 @@ import java.util.List;
  */
 public final class NestedBuffersControllerBuffer extends AbstractControllerBuffer<List<ParticleControllerDataBuffer<?>>> {
     public static final ParticleControllerDataBuffer.Id ID =
-            new ParticleControllerDataBuffer.Id(new ResourceLocation("reiparticlesapi", "nested_buffers"));
+            new ParticleControllerDataBuffer.Id(ResourceLocation.fromNamespaceAndPath("reiparticlesapi", "nested_buffers"));
 
     @Override
     public byte[] encode(List<ParticleControllerDataBuffer<?>> value) {
@@ -59,7 +59,7 @@ public final class NestedBuffersControllerBuffer extends AbstractControllerBuffe
                 byte[] data = new byte[dataLen];
                 dis.readFully(data);
                 ParticleControllerDataBuffer.Id id =
-                        new ParticleControllerDataBuffer.Id(new ResourceLocation(idStr));
+                        new ParticleControllerDataBuffer.Id(ResourceLocation.parse(idStr));
                 ParticleControllerDataBuffer<?> decoded =
                         ParticleControllerDataBuffers.INSTANCE.withIdDecode(id, data);
                 if (decoded != null) {

@@ -14,16 +14,6 @@ public final class ServerCameraUtil {
     private ServerCameraUtil() {
     }
 
-    public static void sendShake(Object world, Object target, double range, double power, int durationTicks) {
-        if (!(world instanceof ServerLevel serverLevel)) {
-            throw new IllegalArgumentException("world must be ServerLevel");
-        }
-        if (!(target instanceof Vec3 origin)) {
-            throw new IllegalArgumentException("target must be Vec3");
-        }
-        sendShake(serverLevel, origin, range, power, durationTicks);
-    }
-
     public static void sendShake(ServerLevel world, double power, int durationTicks) {
         Objects.requireNonNull(world, "world");
         if (power <= 0) throw new IllegalArgumentException("power must be > 0");

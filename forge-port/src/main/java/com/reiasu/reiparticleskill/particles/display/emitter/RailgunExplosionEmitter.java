@@ -26,7 +26,7 @@ import java.util.UUID;
  */
 @ReiAutoRegister
  public final class RailgunExplosionEmitter extends AutoParticleEmitters {
-    public static final ResourceLocation CODEC_ID = new ResourceLocation("reiparticleskill", "railgun_explosion");
+    public static final ResourceLocation CODEC_ID = ResourceLocation.fromNamespaceAndPath("reiparticleskill", "railgun_explosion");
 
     private static final DustParticleOptions WAVE_COLOR =
             new DustParticleOptions(new Vector3f(210f / 255f, 80f / 255f, 1.0f), 0.65f);

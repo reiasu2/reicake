@@ -15,7 +15,7 @@ public final class ClientParticlePacketHandler {
             return;
         }
         minecraft.level.addParticle(
-                packet.type(),
+                packet.particleOptions(),
                 true,
                 packet.pos().x,
                 packet.pos().y,

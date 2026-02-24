@@ -14,7 +14,7 @@ import org.joml.Vector3f;
 import java.util.UUID;
 
 public final class DebugRailgunEmitters extends ParticleEmitters {
-    public static final ResourceLocation CODEC_ID = new ResourceLocation("reiparticlesapi", "debug_railgun");
+    public static final ResourceLocation CODEC_ID = ResourceLocation.fromNamespaceAndPath("reiparticlesapi", "debug_railgun");
     private static final DustParticleOptions BEAM_COLOR =
             new DustParticleOptions(new Vector3f(1.0f, 0.55f, 0.62f), 1.2f);
     private final Vec3 from;

@@ -7,20 +7,24 @@ import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.network.NetworkEvent;
 
-import java.util.function.Supplier;
 
-public record PacketParticleS2C(ParticleOptions type, Vec3 pos, Vec3 velocity) {
-    public static void encode(PacketParticleS2C packet, FriendlyByteBuf buf) {
-        ResourceLocation id = BuiltInRegistries.PARTICLE_TYPE.getKey(packet.type.getType());
+public record PacketParticleS2C(ParticleOptions particleOptions, Vec3 pos, Vec3 velocity) implements CustomPacketPayload {
+    public static final Type<PacketParticleS2C> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath("reiparticlesapi", "packet_particle_s2_c"));
+    public static final StreamCodec<RegistryFriendlyByteBuf, PacketParticleS2C> STREAM_CODEC = StreamCodec.of((buf, pkt) -> encode(pkt, buf), PacketParticleS2C::decode);
+
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    public static void encode(PacketParticleS2C packet, RegistryFriendlyByteBuf buf) {
+        ResourceLocation id = BuiltInRegistries.PARTICLE_TYPE.getKey(packet.particleOptions.getType());
         buf.writeResourceLocation(id);
-        packet.type.writeToNetwork(buf);
+        ParticleType type = packet.particleOptions.getType();
+        ((StreamCodec) type.streamCodec()).encode(buf, packet.particleOptions);
         buf.writeDouble(packet.pos.x);
         buf.writeDouble(packet.pos.y);
         buf.writeDouble(packet.pos.z);
@@ -29,26 +33,26 @@ public record PacketParticleS2C(ParticleOptions type, Vec3 pos, Vec3 velocity) {
         buf.writeDouble(packet.velocity.z);
     }
 
-    public static PacketParticleS2C decode(FriendlyByteBuf buf) {
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    public static PacketParticleS2C decode(RegistryFriendlyByteBuf buf) {
         ResourceLocation id = buf.readResourceLocation();
-        ParticleType<?> particleType = BuiltInRegistries.PARTICLE_TYPE.get(id);
-        if (particleType == null) {
-            particleType = ParticleTypes.END_ROD;
+        ParticleType type = BuiltInRegistries.PARTICLE_TYPE.getOptional(id).orElse(null);
+        ParticleOptions options;
+        if (type != null) {
+            options = (ParticleOptions) type.streamCodec().decode(buf);
+        } else {
+            options = ParticleTypes.END_ROD;
         }
-        ParticleOptions options = readParticleOptions(particleType, buf);
         Vec3 pos = new Vec3(buf.readDouble(), buf.readDouble(), buf.readDouble());
         Vec3 velocity = new Vec3(buf.readDouble(), buf.readDouble(), buf.readDouble());
         return new PacketParticleS2C(options, pos, velocity);
     }
 
-    public static void handle(PacketParticleS2C packet, Supplier<NetworkEvent.Context> contextSupplier) {
-        NetworkEvent.Context context = contextSupplier.get();
-        context.enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> ClientParticlePacketHandler.receive(packet)));
-        context.setPacketHandled(true);
+    public static void handle(PacketParticleS2C packet, IPayloadContext context) {
+        context.enqueueWork(() -> ClientParticlePacketHandler.receive(packet));
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    private static ParticleOptions readParticleOptions(ParticleType<?> type, FriendlyByteBuf buf) {
-        return ((ParticleOptions.Deserializer) type.getDeserializer()).fromNetwork((ParticleType) type, buf);
-    }
+    @Override
+    public Type<? extends CustomPacketPayload> type() { return TYPE; }
+
 }

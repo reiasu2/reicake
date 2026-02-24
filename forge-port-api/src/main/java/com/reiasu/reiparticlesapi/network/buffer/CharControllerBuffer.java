@@ -11,7 +11,7 @@ import java.nio.ByteBuffer;
  */
 public final class CharControllerBuffer extends AbstractControllerBuffer<Character> {
     public static final ParticleControllerDataBuffer.Id ID =
-            new ParticleControllerDataBuffer.Id(new ResourceLocation("reiparticlesapi", "char"));
+            new ParticleControllerDataBuffer.Id(ResourceLocation.fromNamespaceAndPath("reiparticlesapi", "char"));
 
     @Override
     public byte[] encode(Character value) {

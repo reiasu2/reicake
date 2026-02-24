@@ -37,15 +37,14 @@ SOFTWARE.
 
 ---
 
-## Minecraft Forge
+## NeoForge
 
-- **Artifact:** `net.minecraftforge:forge:1.20.1-47.2.0`
-- **License:** LGPL-2.1-only (Forge), Minecraft EULA (Mojang)
-- **Homepage:** https://minecraftforge.net
-- **Note:** Forge is a modding platform; it is not bundled in the output jars.
+- **Artifact:** `net.neoforged:neoforge:21.1.173`
+- **License:** LGPL-2.1-only (NeoForge), Minecraft EULA (Mojang)
+- **Homepage:** https://neoforged.net
+- **Note:** NeoForge is a modding platform; it is not bundled in the output jars.
   Minecraft is proprietary software owned by Mojang Studios / Microsoft.
-  Forge's license has varied across versions; LGPL-2.1 is a simplified
-  description for the 1.20.x era. See Forge's own LICENSE for authoritative terms.
+  See NeoForge's own LICENSE for authoritative terms.
 
 ---
 

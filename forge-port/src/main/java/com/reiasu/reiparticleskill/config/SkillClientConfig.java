@@ -2,24 +2,24 @@
 // Copyright (C) 2025 Reiasu
 package com.reiasu.reiparticleskill.config;
 
-import net.minecraftforge.common.ForgeConfigSpec;
+import net.neoforged.neoforge.common.ModConfigSpec;
 import org.apache.commons.lang3.tuple.Pair;
 
 public final class SkillClientConfig {
 
-    public static final ForgeConfigSpec SPEC;
+    public static final ModConfigSpec SPEC;
     public static final SkillClientConfig INSTANCE;
 
     static {
-        Pair<SkillClientConfig, ForgeConfigSpec> pair =
-                new ForgeConfigSpec.Builder().configure(SkillClientConfig::new);
+        Pair<SkillClientConfig, ModConfigSpec> pair =
+                new ModConfigSpec.Builder().configure(SkillClientConfig::new);
         INSTANCE = pair.getLeft();
         SPEC = pair.getRight();
     }
 
-    private final ForgeConfigSpec.BooleanValue suppressCrystalBeam;
+    private final ModConfigSpec.BooleanValue suppressCrystalBeam;
 
-    private SkillClientConfig(ForgeConfigSpec.Builder builder) {
+    private SkillClientConfig(ModConfigSpec.Builder builder) {
         builder.push("rendering");
 
         suppressCrystalBeam = builder

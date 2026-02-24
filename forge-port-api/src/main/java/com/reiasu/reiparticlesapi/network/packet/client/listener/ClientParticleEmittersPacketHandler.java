@@ -26,7 +26,7 @@ public final class ClientParticleEmittersPacketHandler {
             return;
         }
         Minecraft minecraft = Minecraft.getInstance();
-        switch (packet.type()) {
+        switch (packet.packetType()) {
             case CHANGE_OR_CREATE -> {
                 if (minecraft.level != null) {
                     ParticleEmittersManager.createOrChangeClient(emitters, minecraft.level);

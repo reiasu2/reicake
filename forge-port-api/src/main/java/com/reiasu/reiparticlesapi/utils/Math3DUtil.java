@@ -4,6 +4,7 @@ package com.reiasu.reiparticlesapi.utils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.joml.Vector3f;
 
@@ -15,19 +16,15 @@ public final class Math3DUtil {
         return Math.sqrt(x * x + y * y + z * z);
     }
 
-    public static double clamp(double value, double min, double max) {
-        return Math.max(min, Math.min(max, value));
-    }
-
     public static double lerp(double from, double to, double alpha) {
         return from + (to - from) * alpha;
     }
 
     public static Vector3f colorOf(int r, int g, int b) {
-        int rr = (int) clamp(r, 0, 255);
-        int gg = (int) clamp(g, 0, 255);
-        int bb = (int) clamp(b, 0, 255);
-        return new Vector3f((float) rr / 255f, (float) gg / 255f, (float) bb / 255f);
+        return new Vector3f(
+                Math.clamp(r, 0, 255) / 255f,
+                Math.clamp(g, 0, 255) / 255f,
+                Math.clamp(b, 0, 255) / 255f);
     }
 
     /**
@@ -94,7 +91,7 @@ public final class Math3DUtil {
         List<RelativeLocation> result = new ArrayList<>();
         if (target == null || segments <= 0) return result;
 
-        java.util.Random rand = new java.util.Random();
+        ThreadLocalRandom rand = ThreadLocalRandom.current();
         double dx = target.getX() / segments;
         double dy = target.getY() / segments;
         double dz = target.getZ() / segments;
@@ -199,7 +196,7 @@ public final class Math3DUtil {
         }
 
         double dot = fx * tx + fy * ty + fz * tz;
-        double angle = Math.acos(clamp(dot, -1.0, 1.0));
+        double angle = Math.acos(Math.clamp(dot, -1.0, 1.0));
         RelativeLocation rotAxis = new RelativeLocation(cx / crossLen, cy / crossLen, cz / crossLen);
         rotateAsAxis(points, rotAxis, angle);
     }

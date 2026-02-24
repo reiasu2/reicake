@@ -30,7 +30,7 @@ import java.util.UUID;
  * Server-side port of the Fabric original.
  */
 public final class CollectEnderPowerEmitter extends AutoParticleEmitters {
-    public static final ResourceLocation CODEC_ID = new ResourceLocation("reiparticleskill", "collect_ender_power");
+    public static final ResourceLocation CODEC_ID = ResourceLocation.fromNamespaceAndPath("reiparticleskill", "collect_ender_power");
 
     private static final DustParticleOptions ENDER_COLOR =
             new DustParticleOptions(new Vector3f(0.45f, 0.15f, 0.75f), 0.5f);

@@ -28,17 +28,18 @@ import com.reiasu.reiparticlesapi.scheduler.ReiScheduler;
 import com.reiasu.reiparticlesapi.test.TestManager;
 import com.reiasu.reiparticlesapi.utils.ClientCameraUtil;
 import com.mojang.logging.LogUtils;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.RegisterParticleProvidersEvent;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.RegisterCommandsEvent;
-import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.fml.ModLoadingContext;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.config.ModConfig;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.fml.loading.FMLEnvironment;
+import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.RegisterCommandsEvent;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import org.slf4j.Logger;
 
 import java.util.Map;
@@ -48,58 +49,47 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class ReiParticlesAPIForge {
     public static final String MOD_ID = "reiparticlesapi";
     private static final Logger LOGGER = LogUtils.getLogger();
-    public ReiParticlesAPIForge() {
-        registerConfig();
-        registerTickCallbacks();
+    public ReiParticlesAPIForge(IEventBus modBus, ModContainer container) {
+        registerConfig(container);
+        registerTickCallbacks(modBus);
         registerCommands();
-        initSystems();
+        initSystems(modBus);
 
-        LOGGER.info("ReiParticlesAPI Forge runtime initialized");
+        LOGGER.info("ReiParticlesAPI NeoForge runtime initialized");
     }
 
     // ---- Lifecycle phases ----
 
-    private void registerConfig() {
-        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, APIConfig.SPEC);
+    private void registerConfig(ModContainer container) {
+        container.registerConfig(ModConfig.Type.COMMON, APIConfig.SPEC);
     }
 
-    private void registerTickCallbacks() {
-        var modBus = FMLJavaModLoadingContext.get().getModEventBus();
+    private void registerTickCallbacks(IEventBus modBus) {
         modBus.addListener((FMLClientSetupEvent event) -> onClientSetup());
         ReiModParticles.register(modBus);
         modBus.addListener(this::onRegisterParticleProviders);
 
-        MinecraftForge.EVENT_BUS.addListener((TickEvent.ClientTickEvent event) -> {
-            if (event.phase == TickEvent.Phase.START) {
-                DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> ClientTickEventForwarder::onClientStartTick);
+        NeoForge.EVENT_BUS.addListener((ClientTickEvent.Pre event) -> {
+            if (FMLEnvironment.dist == Dist.CLIENT) {
+                ClientTickEventForwarder.onClientStartTick();
             }
         });
-        MinecraftForge.EVENT_BUS.addListener((TickEvent.ClientTickEvent event) -> {
-            if (event.phase == TickEvent.Phase.END) {
-                onClientEndTick();
-            }
-        });
-        MinecraftForge.EVENT_BUS.addListener((TickEvent.ServerTickEvent event) -> {
-            if (event.phase == TickEvent.Phase.START && event.getServer() != null) {
-                ReiEventBus.call(new ServerPreTickEvent(event.getServer()));
-            }
-        });
-        MinecraftForge.EVENT_BUS.addListener((TickEvent.ServerTickEvent event) -> {
-            if (event.phase == TickEvent.Phase.END && event.getServer() != null) {
-                onServerEndTick(event.getServer());
-            }
-        });
+        NeoForge.EVENT_BUS.addListener((ClientTickEvent.Post event) -> onClientEndTick());
+        NeoForge.EVENT_BUS.addListener((ServerTickEvent.Pre event) ->
+                ReiEventBus.call(new ServerPreTickEvent(event.getServer())));
+        NeoForge.EVENT_BUS.addListener((ServerTickEvent.Post event) ->
+                onServerEndTick(event.getServer()));
     }
 
     private void registerCommands() {
-        MinecraftForge.EVENT_BUS.addListener(
+        NeoForge.EVENT_BUS.addListener(
                 (RegisterCommandsEvent event) ->
                         APICommand.INSTANCE.register(event.getDispatcher())
         );
     }
 
-    private void initSystems() {
-        ReiParticlesNetwork.init();
+    private void initSystems(IEventBus modBus) {
+        modBus.addListener(ReiParticlesNetwork::registerPayloads);
         ParticleEmittersManager.registerBuiltinCodecs();
         EmittersShootTypes.INSTANCE.init();
         WindDirections.INSTANCE.init();
@@ -113,8 +103,7 @@ public final class ReiParticlesAPIForge {
     // ---- Tick handlers (each manager wrapped in try-catch) ----
 
     private void onClientEndTick() {
-        safeTick("ClientTickEventForwarder", () ->
-                DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> ClientTickEventForwarder::onClientEndTick));
+        safeTick("ClientTickEventForwarder", ClientTickEventForwarder::onClientEndTick);
         safeTick("AnimateManager.client", () -> AnimateManager.INSTANCE.tickClient());
         safeTick("ParticleEmittersManager.client", ParticleEmittersManager::tickClient);
         safeTick("DisplayEntityManager.client", () -> DisplayEntityManager.INSTANCE.tickClient());

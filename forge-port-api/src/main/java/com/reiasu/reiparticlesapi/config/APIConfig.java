@@ -2,7 +2,7 @@
 // Copyright (C) 2025 Reiasu
 package com.reiasu.reiparticlesapi.config;
 
-import net.minecraftforge.common.ForgeConfigSpec;
+import net.neoforged.neoforge.common.ModConfigSpec;
 import org.apache.commons.lang3.tuple.Pair;
 
 /**
@@ -13,24 +13,24 @@ import org.apache.commons.lang3.tuple.Pair;
  */
 public final class APIConfig {
 
-    public static final ForgeConfigSpec SPEC;
+    public static final ModConfigSpec SPEC;
     public static final APIConfig INSTANCE;
 
     static {
-        Pair<APIConfig, ForgeConfigSpec> pair =
-                new ForgeConfigSpec.Builder().configure(APIConfig::new);
+        Pair<APIConfig, ModConfigSpec> pair =
+                new ModConfigSpec.Builder().configure(APIConfig::new);
         INSTANCE = pair.getLeft();
         SPEC = pair.getRight();
     }
 
-    private final ForgeConfigSpec.BooleanValue enabledParticleCountInject;
-    private final ForgeConfigSpec.BooleanValue enabledParticleAsync;
-    private final ForgeConfigSpec.IntValue particleCountLimit;
-    private final ForgeConfigSpec.IntValue calculateThreadCount;
-    private final ForgeConfigSpec.IntValue packetsPerTickLimit;
-    private final ForgeConfigSpec.IntValue maxEmitterVisibleRange;
+    private final ModConfigSpec.BooleanValue enabledParticleCountInject;
+    private final ModConfigSpec.BooleanValue enabledParticleAsync;
+    private final ModConfigSpec.IntValue particleCountLimit;
+    private final ModConfigSpec.IntValue calculateThreadCount;
+    private final ModConfigSpec.IntValue packetsPerTickLimit;
+    private final ModConfigSpec.IntValue maxEmitterVisibleRange;
 
-    private APIConfig(ForgeConfigSpec.Builder builder) {
+    private APIConfig(ModConfigSpec.Builder builder) {
         builder.push("particles");
 
         enabledParticleCountInject = builder
@@ -75,7 +75,7 @@ public final class APIConfig {
     public int getPacketsPerTickLimit() { return safeGet(packetsPerTickLimit, 512); }
     public int getMaxEmitterVisibleRange() { return safeGet(maxEmitterVisibleRange, 256); }
 
-    private static <T> T safeGet(ForgeConfigSpec.ConfigValue<T> value, T fallback) {
+    private static <T> T safeGet(ModConfigSpec.ConfigValue<T> value, T fallback) {
         try {
             return value.get();
         } catch (IllegalStateException e) {

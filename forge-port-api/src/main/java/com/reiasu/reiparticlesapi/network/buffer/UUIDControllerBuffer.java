@@ -9,7 +9,7 @@ import java.util.UUID;
 
 public final class UUIDControllerBuffer extends AbstractControllerBuffer<UUID> {
     public static final ParticleControllerDataBuffer.Id ID =
-            new ParticleControllerDataBuffer.Id(new ResourceLocation("reiparticlesapi", "uuid"));
+            new ParticleControllerDataBuffer.Id(ResourceLocation.fromNamespaceAndPath("reiparticlesapi", "uuid"));
 
     @Override
     public byte[] encode(UUID value) {

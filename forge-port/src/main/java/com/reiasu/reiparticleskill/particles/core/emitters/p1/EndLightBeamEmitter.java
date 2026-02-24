@@ -24,7 +24,7 @@ import java.util.UUID;
  */
 @ReiAutoRegister
  public final class EndLightBeamEmitter extends AutoParticleEmitters {
-    public static final ResourceLocation CODEC_ID = new ResourceLocation("reiparticleskill", "end_light_beam");
+    public static final ResourceLocation CODEC_ID = ResourceLocation.fromNamespaceAndPath("reiparticleskill", "end_light_beam");
 
     private static final DustParticleOptions BEAM_COLOR =
             new DustParticleOptions(new Vector3f(210f / 255f, 80f / 255f, 1.0f), 0.6f);

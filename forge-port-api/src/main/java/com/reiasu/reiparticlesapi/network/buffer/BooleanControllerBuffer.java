@@ -6,7 +6,7 @@ import net.minecraft.resources.ResourceLocation;
 
 public final class BooleanControllerBuffer extends AbstractControllerBuffer<Boolean> {
     public static final ParticleControllerDataBuffer.Id ID =
-            new ParticleControllerDataBuffer.Id(new ResourceLocation("reiparticlesapi", "boolean"));
+            new ParticleControllerDataBuffer.Id(ResourceLocation.fromNamespaceAndPath("reiparticlesapi", "boolean"));
 
     @Override
     public byte[] encode(Boolean value) {

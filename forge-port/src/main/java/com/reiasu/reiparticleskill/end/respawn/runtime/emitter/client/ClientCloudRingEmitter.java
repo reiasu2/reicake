@@ -19,7 +19,7 @@ import org.joml.Vector3f;
  */
 @ReiAutoRegister
 public final class ClientCloudRingEmitter extends AutoParticleEmitters {
-    public static final ResourceLocation CODEC_ID = new ResourceLocation("reiparticleskill", "client_cloud_ring");
+    public static final ResourceLocation CODEC_ID = ResourceLocation.fromNamespaceAndPath("reiparticleskill", "client_cloud_ring");
     private static final Vector3f MAIN_COLOR = new Vector3f(210f / 255f, 80f / 255f, 1.0f);
     private static final double TAU = Math.PI * 2.0;
     private static final int SCALE_TICKS = 24;

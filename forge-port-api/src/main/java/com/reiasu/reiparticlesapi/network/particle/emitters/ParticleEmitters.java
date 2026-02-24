@@ -27,7 +27,7 @@ import java.util.UUID;
  * Every emitter subclass registered via {@code @ReiAutoRegister} must declare:
  * <pre>{@code
  * public static final ResourceLocation CODEC_ID =
- *         new ResourceLocation("mymod", "my_emitter");
+ *         ResourceLocation.fromNamespaceAndPath("mymod", "my_emitter");
  *
  * public static MyEmitter decode(FriendlyByteBuf buf) {
  *     MyEmitter e = new MyEmitter();

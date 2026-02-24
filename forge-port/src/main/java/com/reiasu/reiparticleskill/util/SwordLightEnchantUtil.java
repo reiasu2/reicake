@@ -113,7 +113,7 @@ public final class SwordLightEnchantUtil {
     }
 
     private static void playFormationSound(ServerLevel level, Vec3 pos) {
-        if (level == null || pos == null || !SkillSoundEvents.SWORD_FORMATION.isPresent()) {
+        if (level == null || pos == null || !SkillSoundEvents.SWORD_FORMATION.isBound()) {
             return;
         }
         level.playSound(

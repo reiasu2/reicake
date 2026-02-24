@@ -30,7 +30,7 @@ public final class ClientParticleGroupPacketHandler {
 
     public static void receive(PacketParticleGroupS2C packet) {
         UUID uuid = packet.uuid();
-        ControlType type = packet.type();
+        ControlType type = packet.controlType();
         switch (type) {
             case CREATE -> handleCreate(uuid, packet.args());
             case CHANGE -> handleChange(uuid, packet.args());
