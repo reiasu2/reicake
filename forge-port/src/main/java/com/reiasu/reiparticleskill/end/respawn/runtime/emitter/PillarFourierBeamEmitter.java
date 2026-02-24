@@ -1,5 +1,3 @@
-// SPDX-License-Identifier: LGPL-3.0-only
-// Copyright (C) 2025 Reiasu
 package com.reiasu.reiparticleskill.end.respawn.runtime.emitter;
 
 import com.reiasu.reiparticleskill.util.ParticleHelper;
@@ -10,16 +8,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 
-/**
- * Fourier-curve light beam that erupts upward from an obsidian pillar
- * during the dragon respawn finale. The beam cross-section traces a
- * multi-frequency rose curve that rotates and expands as it rises.
- * <p>
- * Cross-section: r(θ) = A·cos(3θ) + B·cos(5θ) + C·sin(2θ)
- * The beam sweeps upward over time, leaving a fading trail.
- *
- * @author Reiasu
- */
 public final class PillarFourierBeamEmitter extends TimedRespawnEmitter {
     private static final Vector3f BEAM_COLOR = new Vector3f(210f / 255f, 80f / 255f, 1.0f);
     private static final Vector3f BRIGHT_COLOR = new Vector3f(240f / 255f, 160f / 255f, 1.0f);
@@ -100,7 +88,7 @@ public final class PillarFourierBeamEmitter extends TimedRespawnEmitter {
             // Rotation accelerates with height
             double localRot = rotation + heightFraction * TAU * 0.5;
 
-            // Fourier cross-section: r(θ) = A·cos(3θ) + B·cos(5θ) + C·sin(2θ)
+            // Fourier cross-section: r(Î¸) = A--·cos(3Î¸) + B--·cos(5Î¸) + C--·sin(2Î¸)
             float size = Mth.clamp(3.5f * alpha, 1.0f, 4.0f);
             DustParticleOptions dust = new DustParticleOptions(BEAM_COLOR, size);
 

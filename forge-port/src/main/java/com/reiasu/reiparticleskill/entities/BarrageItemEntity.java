@@ -1,10 +1,6 @@
-// SPDX-License-Identifier: LGPL-3.0-only
-// Copyright (C) 2025 Reiasu
 package com.reiasu.reiparticleskill.entities;
 
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -14,7 +10,6 @@ import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.network.NetworkHooks;
 
 public class BarrageItemEntity extends Entity {
     private static final EntityDataAccessor<ItemStack> DATA_ITEM =
@@ -71,14 +66,16 @@ public class BarrageItemEntity extends Entity {
     }
 
     @Override
-    protected void defineSynchedData() {
-        getEntityData().define(DATA_ITEM, ItemStack.EMPTY);
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        builder.define(DATA_ITEM, ItemStack.EMPTY);
     }
 
     @Override
     protected void readAdditionalSaveData(CompoundTag tag) {
         if (tag.contains(TAG_ITEM)) {
-            setItem(ItemStack.of(tag.getCompound(TAG_ITEM)));
+            ItemStack.CODEC.parse(net.minecraft.nbt.NbtOps.INSTANCE, tag.getCompound(TAG_ITEM))
+                    .resultOrPartial(s -> {})
+                    .ifPresent(this::setItem);
         }
         roll = tag.getFloat(TAG_ROLL);
         scale = tag.getFloat(TAG_SCALE);
@@ -87,7 +84,7 @@ public class BarrageItemEntity extends Entity {
 
     @Override
     protected void addAdditionalSaveData(CompoundTag tag) {
-        tag.put(TAG_ITEM, getItem().save(new CompoundTag()));
+        tag.put(TAG_ITEM, getItem().save(level().registryAccess()));
         tag.putFloat(TAG_ROLL, roll);
         tag.putFloat(TAG_SCALE, scale);
         tag.putBoolean(TAG_BLOCK, block);
@@ -102,8 +99,5 @@ public class BarrageItemEntity extends Entity {
         }
     }
 
-    @Override
-    public Packet<ClientGamePacketListener> getAddEntityPacket() {
-        return NetworkHooks.getEntitySpawningPacket(this);
-    }
+    // getAddEntityPacket removed in 1.21 --” NeoForge handles entity spawn packets automatically
 }

@@ -1,5 +1,3 @@
-// SPDX-License-Identifier: LGPL-3.0-only
-// Copyright (C) 2025 Reiasu
 package com.reiasu.reiparticleskill.client;
 
 import com.reiasu.reiparticlesapi.event.events.key.KeyActionType;
@@ -10,13 +8,11 @@ import com.reiasu.reiparticleskill.keys.SkillKeys;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
 import org.slf4j.Logger;
 
-@Mod.EventBusSubscriber(modid = ReiParticleSkillForge.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
+@net.neoforged.fml.common.EventBusSubscriber(modid = ReiParticleSkillForge.MOD_ID, bus = net.neoforged.fml.common.EventBusSubscriber.Bus.GAME, value = Dist.CLIENT)
 public final class SkillKeyInputHandler {
     private static final Logger LOGGER = LogUtils.getLogger();
 
@@ -24,10 +20,7 @@ public final class SkillKeyInputHandler {
     }
 
     @SubscribeEvent
-    public static void onClientTick(TickEvent.ClientTickEvent event) {
-        if (event.phase != TickEvent.Phase.END) {
-            return;
-        }
+    public static void onClientTick(net.neoforged.neoforge.client.event.ClientTickEvent.Post event) {
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft.player == null || minecraft.screen != null) {
             return;
@@ -43,7 +36,7 @@ public final class SkillKeyInputHandler {
 
     private static void sendKeyAction(ResourceLocation keyId) {
         try {
-            ReiParticlesNetwork.CHANNEL.sendToServer(new PacketKeyActionC2S(keyId, KeyActionType.SINGLE_CLICK, 0, false));
+            net.neoforged.neoforge.network.PacketDistributor.sendToServer(new PacketKeyActionC2S(keyId, KeyActionType.SINGLE_CLICK, 0, false));
         } catch (Throwable t) {
             LOGGER.debug("Failed to send key action packet: {}", keyId, t);
         }

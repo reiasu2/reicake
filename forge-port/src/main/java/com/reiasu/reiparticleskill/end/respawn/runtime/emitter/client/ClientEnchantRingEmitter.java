@@ -1,5 +1,3 @@
-// SPDX-License-Identifier: LGPL-3.0-only
-// Copyright (C) 2025 Reiasu
 package com.reiasu.reiparticleskill.end.respawn.runtime.emitter.client;
 
 import com.reiasu.reiparticlesapi.annotations.ReiAutoRegister;
@@ -14,13 +12,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 
-/**
- * Client-rendered enchant sparkle ring emitter.
- * Server syncs params only; client generates particles locally.
- */
 @ReiAutoRegister
 public final class ClientEnchantRingEmitter extends AutoParticleEmitters {
-    public static final ResourceLocation CODEC_ID = new ResourceLocation("reiparticleskill", "client_enchant_ring");
+    public static final ResourceLocation CODEC_ID = ResourceLocation.fromNamespaceAndPath("reiparticleskill", "client_enchant_ring");
     private static final Vector3f MAIN_COLOR = new Vector3f(210f / 255f, 80f / 255f, 1.0f);
     private static final double TAU = Math.PI * 2.0;
     private static final int SCALE_TICKS = 24;
@@ -70,7 +64,8 @@ public final class ClientEnchantRingEmitter extends AutoParticleEmitters {
         int cMin = Math.max(1, countMin);
         int cMax = Math.max(cMin + 1, countMax);
         int count = random.nextInt(cMin, cMax);
-        double scale = easeScale(tick);
+        double rawT = Math.min(1.0, Math.max(0.0, tick / (double) SCALE_TICKS));
+        double scale = rawT < 1.0 ? 0.01 + 0.99 * (1.0 - Math.pow(1.0 - rawT, 5)) : 1.0;
         double rotation = tick * rotateSpeed;
         double breath = 1.0 + 0.04 * Math.sin(tick * 0.09);
         double r = radius * scale * breath;
@@ -117,17 +112,7 @@ public final class ClientEnchantRingEmitter extends AutoParticleEmitters {
     }
 
     private double randomBetween(double min, double max) {
-        double lo = Math.min(min, max);
-        double hi = Math.max(min, max);
-        return (Math.abs(hi - lo) < 1.0E-6) ? lo : lo + random.nextDouble() * (hi - lo);
-    }
-
-    private double easeScale(int tick) {
-        if (tick <= 0) return 0.01;
-        if (tick >= SCALE_TICKS) return 1.0;
-        double t = tick / (double) SCALE_TICKS;
-        double inv = 1.0 - t;
-        return 0.01 + 0.99 * (1.0 - inv * inv * inv * inv * inv);
+        return min + random.nextDouble() * Math.max(0, max - min);
     }
 
     @Override

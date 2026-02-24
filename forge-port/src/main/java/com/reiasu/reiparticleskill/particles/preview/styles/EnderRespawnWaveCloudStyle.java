@@ -1,5 +1,3 @@
-// SPDX-License-Identifier: LGPL-3.0-only
-// Copyright (C) 2025 Reiasu
 package com.reiasu.reiparticleskill.particles.preview.styles;
 
 import com.reiasu.reiparticlesapi.annotations.ReiAutoRegister;
@@ -23,20 +21,17 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
+import net.minecraft.util.Mth;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import net.minecraft.util.Mth;
 
-/**
- * Ender respawn wave cloud style that renders cloud-like particle rings
- * with Y offset, random angles, rotation, and status-driven alpha fade.
- * Color: purple (210, 80, 255). Server-side port of the Fabric original.
- */
 @ReiAutoRegister
  public final class EnderRespawnWaveCloudStyle extends ParticleGroupStyle {
-    public static final ResourceLocation REGISTRY_KEY = new ResourceLocation("reiparticleskill", "ender_respawn_wave_cloud_style");
+    public static final ResourceLocation REGISTRY_KEY = ResourceLocation.fromNamespaceAndPath("reiparticleskill", "ender_respawn_wave_cloud_style");
     private static final DustParticleOptions CLOUD_COLOR =
             new DustParticleOptions(new Vector3f(210f / 255f, 80f / 255f, 1.0f), 0.5f);
 
@@ -129,7 +124,7 @@ import java.util.UUID;
         float alpha = 1.0f;
         if (status == 2) {
             statusTick++;
-            alpha = GraphMathHelper.lerp((float) statusTick / 20.0f, 1.0f, 0.0f);
+            alpha = Mth.lerp((float) statusTick / 20.0f, 1.0f, 0.0f);
             if (alpha <= 0.02f || statusTick > 20) {
                 super.remove();
                 return;

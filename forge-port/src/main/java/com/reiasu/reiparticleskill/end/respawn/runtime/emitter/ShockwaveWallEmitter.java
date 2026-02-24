@@ -1,5 +1,3 @@
-// SPDX-License-Identifier: LGPL-3.0-only
-// Copyright (C) 2025 Reiasu
 package com.reiasu.reiparticleskill.end.respawn.runtime.emitter;
 
 import com.reiasu.reiparticleskill.util.ParticleHelper;
@@ -10,19 +8,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 
-/**
- * Expanding shockwave wall that erupts outward from the center during
- * the dragon respawn finale. The wall is a tall cylinder of particles
- * that expands rapidly, creating a dramatic visual impact.
- * <p>
- * The wall has two layers:
- * <ul>
- *   <li>Primary ring: dense dust particles forming the wall face</li>
- *   <li>Trailing wisps: enchant particles left behind as the wall passes</li>
- * </ul>
- *
- * @author Reiasu
- */
 public final class ShockwaveWallEmitter extends TimedRespawnEmitter {
     private static final Vector3f WALL_COLOR = new Vector3f(180f / 255f, 60f / 255f, 1.0f);
     private static final Vector3f BRIGHT_COLOR = new Vector3f(230f / 255f, 140f / 255f, 1.0f);
@@ -47,8 +32,6 @@ public final class ShockwaveWallEmitter extends TimedRespawnEmitter {
         // Wall intensity fades as it expands
         float intensity = Mth.clamp(1.0f - (float) (radius / MAX_RADIUS), 0.1f, 1.0f);
         double wallThickness = 1.5 + radius * 0.02;
-
-        // ---- Primary wall ring at multiple heights ----
         for (int h = 0; h < HEIGHT_SLICES; h++) {
             double y = (h / (double) HEIGHT_SLICES) * WALL_HEIGHT;
             // Sinusoidal height envelope: thicker in the middle
@@ -70,8 +53,6 @@ public final class ShockwaveWallEmitter extends TimedRespawnEmitter {
                 emitted += 3;
             }
         }
-
-        // ---- Ground-level leading edge: bright ring ----
         DustParticleOptions edgeDust = new DustParticleOptions(BRIGHT_COLOR, 4.0f);
         for (int i = 0; i < RING_POINTS; i++) {
             double angle = TAU * i / (double) RING_POINTS;
@@ -82,8 +63,6 @@ public final class ShockwaveWallEmitter extends TimedRespawnEmitter {
                     3, 0.2, 0.12, 0.2, 0.01);
             emitted += 3;
         }
-
-        // ---- Trailing enchant wisps (only first 60% of expansion) ----
         if (radius < MAX_RADIUS * 0.6) {
             double trailRadius = radius * 0.85;
             int trailPoints = RING_POINTS / 2;

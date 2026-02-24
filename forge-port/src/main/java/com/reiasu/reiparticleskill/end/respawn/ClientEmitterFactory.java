@@ -1,5 +1,3 @@
-// SPDX-License-Identifier: LGPL-3.0-only
-// Copyright (C) 2025 Reiasu
 package com.reiasu.reiparticleskill.end.respawn;
 
 import com.reiasu.reiparticleskill.end.respawn.runtime.emitter.client.ClientCenterEmitter;
@@ -14,11 +12,6 @@ import net.minecraft.world.phys.Vec3;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Creates and manages client-rendered particle emitters for the
- * dragon respawn animation phases. Emitter parameters are defined
- * as named presets instead of inline magic numbers.
- */
 final class ClientEmitterFactory {
 
     // --- Rotation speed presets ---

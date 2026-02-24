@@ -1,5 +1,3 @@
-// SPDX-License-Identifier: LGPL-3.0-only
-// Copyright (C) 2025 Reiasu
 package com.reiasu.reiparticleskill.keys;
 
 import com.reiasu.reiparticleskill.ReiParticleSkillForge;
@@ -13,6 +11,6 @@ public final class SkillKeys {
     }
 
     public static ResourceLocation id(String path) {
-        return new ResourceLocation(ReiParticleSkillForge.MOD_ID, path);
+        return ResourceLocation.fromNamespaceAndPath(ReiParticleSkillForge.MOD_ID, path);
     }
 }

@@ -1,5 +1,3 @@
-// SPDX-License-Identifier: LGPL-3.0-only
-// Copyright (C) 2025 Reiasu
 package com.reiasu.reiparticleskill.particles.core.emitters.p2.formation;
 
 import com.reiasu.reiparticlesapi.annotations.ReiAutoRegister;
@@ -20,13 +18,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * Sword formation wave emitter producing spiral radian-based particles
- * that expand outward from the formation center, matching the Fabric original.
- */
 @ReiAutoRegister
  public final class SwordFormationWaveEmitter extends AutoParticleEmitters {
-    public static final ResourceLocation CODEC_ID = new ResourceLocation("reiparticleskill", "sword_formation_wave");
+    public static final ResourceLocation CODEC_ID = ResourceLocation.fromNamespaceAndPath("reiparticleskill", "sword_formation_wave");
 
     private final RandomSource random = RandomSource.create();
     private final List<WaveParticle> particles = new ArrayList<>();

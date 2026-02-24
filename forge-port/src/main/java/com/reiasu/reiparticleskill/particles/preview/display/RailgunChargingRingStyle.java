@@ -1,5 +1,3 @@
-// SPDX-License-Identifier: LGPL-3.0-only
-// Copyright (C) 2025 Reiasu
 package com.reiasu.reiparticleskill.particles.preview.display;
 
 import com.reiasu.reiparticlesapi.annotations.ReiAutoRegister;
@@ -27,13 +25,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-/**
- * Railgun charging ring style that renders concentric rotating rings
- * with a polygon glyph overlay, matching the Fabric original.
- */
 @ReiAutoRegister
  public final class RailgunChargingRingStyle extends ParticleGroupStyle {
-    public static final ResourceLocation REGISTRY_KEY = new ResourceLocation("reiparticleskill", "railgun_charging_ring_style");
+    public static final ResourceLocation REGISTRY_KEY = ResourceLocation.fromNamespaceAndPath("reiparticleskill", "railgun_charging_ring_style");
     private static final DustParticleOptions RING_COLOR =
             new DustParticleOptions(new Vector3f(210f / 255f, 80f / 255f, 1.0f), 0.6f);
     private static final DustParticleOptions GLYPH_COLOR =

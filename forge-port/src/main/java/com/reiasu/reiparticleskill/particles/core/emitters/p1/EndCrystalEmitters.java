@@ -1,5 +1,3 @@
-// SPDX-License-Identifier: LGPL-3.0-only
-// Copyright (C) 2025 Reiasu
 package com.reiasu.reiparticleskill.particles.core.emitters.p1;
 
 import com.reiasu.reiparticlesapi.annotations.ReiAutoRegister;
@@ -22,14 +20,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * End crystal emitter that travels from a summon position toward a target,
- * spawning particles in a rotating ring whose radius expands and contracts
- * based on distance progress. Server-side port of the Fabric original.
- */
 @ReiAutoRegister
  public final class EndCrystalEmitters extends AutoParticleEmitters {
-    public static final ResourceLocation CODEC_ID = new ResourceLocation("reiparticleskill", "end_crystal");
+    public static final ResourceLocation CODEC_ID = ResourceLocation.fromNamespaceAndPath("reiparticleskill", "end_crystal");
 
     private static final DustParticleOptions CRYSTAL_COLOR =
             new DustParticleOptions(new Vector3f(0.45f, 0.15f, 0.75f), 0.5f);
@@ -124,11 +117,7 @@ import java.util.UUID;
         return emitter;
     }
 
-    /**
-     * Computes the current ring radius based on distance progress.
-     * Radius peaks at 50% travel, shrinks to zero at endpoints.
-     */
-    public double getCurrentRadius() {
+        public double getCurrentRadius() {
         double originalDistance = summonPos.distanceTo(target);
         if (originalDistance < 0.01) return 0.0;
         double distance = position().distanceTo(target);
@@ -136,7 +125,7 @@ import java.util.UUID;
 
         double progress = 1.0 - distance / originalDistance;
         double stepTo = Math.abs(progress - 0.5) * 2.0;
-        return GraphMathHelper.lerp((float) stepTo, maxRadius, 0.0);
+        return Mth.lerp((float) stepTo, maxRadius, 0.0);
     }
 
     @Override

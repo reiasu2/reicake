@@ -1,5 +1,3 @@
-// SPDX-License-Identifier: LGPL-3.0-only
-// Copyright (C) 2025 Reiasu
 package com.reiasu.reiparticleskill.end.respawn;
 
 import net.minecraft.server.MinecraftServer;
@@ -20,6 +18,10 @@ public final class EndRespawnWatcher {
     private static final Map<String, SyntheticRespawnTracker> SYNTHETIC_TRACKERS = new HashMap<>();
 
     private EndRespawnWatcher() {
+    }
+
+        public static void clearTrackers() {
+        SYNTHETIC_TRACKERS.clear();
     }
 
     public static void tickServer(MinecraftServer server, EndRespawnStateBridge bridge, Logger logger) {
@@ -107,7 +109,7 @@ public final class EndRespawnWatcher {
         return Math.max(fromFight, fromPortalArea);
     }
 
-    // Synthetic phase tick thresholds — aligned with Fabric mixin timing.
+    // Synthetic phase tick thresholds --” aligned with Fabric mixin timing.
     // Extracted to constants so they can be tuned or tested independently.
     static final long PHASE_START_END            = 150L;
     static final long PHASE_SUMMON_PILLARS_END   = 650L;

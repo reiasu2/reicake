@@ -1,0 +1,76 @@
+package com.reiasu.reiparticlesapi.utils.helper;
+
+import com.reiasu.reiparticlesapi.network.particle.composition.ParticleComposition;
+import com.reiasu.reiparticlesapi.network.particle.composition.SequencedParticleComposition;
+
+import java.util.AbstractMap;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Predicate;
+
+public final class SequencedCompositionAnimationHelper<T extends SequencedParticleComposition> {
+
+        private final List<Map.Entry<Predicate<T>, Integer>> animationConditions = new ArrayList<>();
+    private T composition;
+    private int animationIndex;
+    private boolean clientOnly;
+
+    public T getComposition() {
+        return composition;
+    }
+
+    public void setComposition(T composition) {
+        this.composition = composition;
+    }
+
+    public int getAnimationIndex() {
+        return animationIndex;
+    }
+
+    public boolean getClientOnly() {
+        return clientOnly;
+    }
+
+    public void setClientOnly(boolean clientOnly) {
+        this.clientOnly = clientOnly;
+    }
+
+        public SequencedCompositionAnimationHelper<T> addAnimate(int nextCount, Predicate<T> displayAnimatePredicate) {
+        animationConditions.add(new AbstractMap.SimpleEntry<>(displayAnimatePredicate, nextCount));
+        return this;
+    }
+
+        public SequencedCompositionAnimationHelper<T> clientOnly() {
+        this.clientOnly = true;
+        return this;
+    }
+
+        @SuppressWarnings("unchecked")
+    public SequencedCompositionAnimationHelper<T> loadComposition(T comp) {
+        this.composition = comp;
+        comp.addPreTickAction(pc -> {
+            // Determine if we should skip this tick
+            boolean clientDisable = comp.getClient() && !clientOnly;
+            boolean serverDisable = clientOnly && !comp.getClient();
+            if (clientDisable || serverDisable) {
+                return;
+            }
+            if (animationIndex >= animationConditions.size()) {
+                return;
+            }
+            Map.Entry<Predicate<T>, Integer> entry = animationConditions.get(animationIndex);
+            Predicate<T> predicate = entry.getKey();
+            int add = entry.getValue();
+            if (predicate.test(comp)) {
+                if (add > 0) {
+                    comp.addMultiple(add);
+                } else {
+                    comp.removeMultiple(-add);
+                }
+                animationIndex++;
+            }
+        });
+        return this;
+    }
+}

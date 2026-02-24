@@ -1,5 +1,3 @@
-// SPDX-License-Identifier: LGPL-3.0-only
-// Copyright (C) 2025 Reiasu
 package com.reiasu.reiparticleskill.end.respawn.runtime.emitter.client;
 
 import com.reiasu.reiparticlesapi.annotations.ReiAutoRegister;
@@ -14,14 +12,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 
-/**
- * Client-rendered center geometric pattern emitter.
- * Rhodonea curve + dual pentagram + Lissajous figures + pulsing ring.
- * Server syncs params only; client generates particles locally.
- */
 @ReiAutoRegister
 public final class ClientCenterEmitter extends AutoParticleEmitters {
-    public static final ResourceLocation CODEC_ID = new ResourceLocation("reiparticleskill", "client_center");
+    public static final ResourceLocation CODEC_ID = ResourceLocation.fromNamespaceAndPath("reiparticleskill", "client_center");
     private static final Vector3f MAIN_COLOR = new Vector3f(210f / 255f, 80f / 255f, 1.0f);
     private static final double TAU = Math.PI * 2.0;
     private static final int SCALE_TICKS = 24;
@@ -58,6 +51,10 @@ public final class ClientCenterEmitter extends AutoParticleEmitters {
     }
 
     private void renderCenter(Level level, Vec3 center, int tick) {
+        double cx = center.x;
+        double cy = center.y + yOffset;
+        double cz = center.z;
+
         double scale = easeScale(tick);
         double breath = 1.0 + 0.15 * Math.sin(tick * 0.08);
         double rotA = tick * 0.008;
@@ -68,44 +65,65 @@ public final class ClientCenterEmitter extends AutoParticleEmitters {
         DustParticleOptions dustSm = new DustParticleOptions(MAIN_COLOR, 2.2f);
         DustParticleOptions dustLg = new DustParticleOptions(MAIN_COLOR, 4.0f);
 
+        // Precompute sines/cosines
+        double cosRotA = Math.cos(rotA);
+        double sinRotA = Math.sin(rotA);
+
         // Layer 1: Rhodonea curve r = cos(5/3 * theta)
         for (int i = 0; i < LAYER1_ROSE_POINTS; i++) {
             double theta = 3.0 * TAU * i / (double) LAYER1_ROSE_POINTS;
             double r = Math.cos(5.0 / 3.0 * theta) * 42.0 * scale * breath;
             double rx = r * Math.cos(theta);
             double rz = r * Math.sin(theta);
-            Vec3 rel = rotateY(new Vec3(rx, 0.0, rz), rotA).add(0.0, yOffset, 0.0);
-            addDust(level, center, rel, dustMed);
+            
+            // rotateY
+            double relX = rx * cosRotA - rz * sinRotA;
+            double relZ = rx * sinRotA + rz * cosRotA;
+            
+            addDust(level, cx + relX, cy, cz + relZ, dustMed);
         }
 
         // Layer 1: Dual pentagram
-        emitStar(level, center, yOffset, 5, 48.0 * scale * breath, 0.0, LAYER1_STAR_POINTS, rotA, dustMed);
-        emitStar(level, center, yOffset, 5, 36.0 * scale * breath, Math.PI / 5.0, LAYER1_STAR_POINTS, rotA, dustMed);
+        emitStar(level, cx, cy, cz, 5, 48.0 * scale * breath, 0.0, LAYER1_STAR_POINTS, cosRotA, sinRotA, dustMed);
+        emitStar(level, cx, cy, cz, 5, 36.0 * scale * breath, Math.PI / 5.0, LAYER1_STAR_POINTS, cosRotA, sinRotA, dustMed);
 
         // Layer 1: Breathing inner ring
         double ringR = 28.0 * scale * breath;
         for (int i = 0; i < LAYER1_RING_POINTS; i++) {
             double a = rotA + TAU * i / (double) LAYER1_RING_POINTS;
             double wobble = 1.0 + 0.12 * Math.sin(a * 6.0 + tick * 0.1);
-            Vec3 rel = new Vec3(Math.cos(a) * ringR * wobble, yOffset, Math.sin(a) * ringR * wobble);
-            addDust(level, center, rel, dustMed);
+            double relX = Math.cos(a) * ringR * wobble;
+            double relZ = Math.sin(a) * ringR * wobble;
+            addDust(level, cx + relX, cy, cz + relZ, dustMed);
             if (i % 3 == 0) {
-                addEnchant(level, center, rel);
+                addEnchant(level, cx + relX, cy, cz + relZ);
             }
         }
 
         // Layer 2: Three Lissajous figures
+        double cosRotB = Math.cos(rotB);
+        double sinRotB = Math.sin(rotB);
         for (int ring = 0; ring < LAYER2_REPEAT; ring++) {
             double pitch = (TAU / 9.0) * ring;
+            double cosPitch = Math.cos(pitch);
+            double sinPitch = Math.sin(pitch);
             double phase = ring * Math.PI / 3.0;
             for (int i = 0; i < LAYER2_LISSAJOUS_POINTS; i++) {
                 double t = TAU * i / (double) LAYER2_LISSAJOUS_POINTS;
                 double lx = Math.sin(3.0 * t + Math.PI / 4.0 + phase) * 14.0 * scale;
                 double lz = Math.sin(4.0 * t) * 14.0 * scale;
-                Vec3 rel = new Vec3(lx, 0.0, lz);
-                rel = rotateX(rel, pitch);
-                rel = rotateY(rel, rotB).add(0.0, yOffset, 0.0);
-                addDust(level, center, rel, dustSm);
+                
+                // rotateX
+                double px = lx;
+                double pz = lz * cosPitch;
+                double py = lz * sinPitch;
+                
+                // rotateY
+                double relX = px * cosRotB - pz * sinRotB;
+                double relZ = px * sinRotB + pz * cosRotB;
+                double relY = py;
+
+                addDust(level, cx + relX, cy + relY, cz + relZ, dustSm);
             }
         }
 
@@ -114,17 +132,18 @@ public final class ClientCenterEmitter extends AutoParticleEmitters {
         for (int i = 0; i < LAYER3_RING_POINTS; i++) {
             double a = rotC + TAU * i / (double) LAYER3_RING_POINTS;
             double wobble = 1.0 + 0.08 * Math.sin(a * 5.0 - tick * 0.06);
-            Vec3 rel = new Vec3(Math.cos(a) * outerR * wobble, yOffset, Math.sin(a) * outerR * wobble);
-            addDust(level, center, rel, dustLg);
+            double relX = Math.cos(a) * outerR * wobble;
+            double relZ = Math.sin(a) * outerR * wobble;
+            addDust(level, cx + relX, cy, cz + relZ, dustLg);
             if (i % 2 == 0) {
-                addEnchant(level, center, rel);
+                addEnchant(level, cx + relX, cy, cz + relZ);
             }
         }
     }
 
-    private void emitStar(Level level, Vec3 center, double yOff,
+    private void emitStar(Level level, double cx, double cy, double cz,
                           int points, double radius, double angleOffset,
-                          int samples, double rotY, DustParticleOptions dust) {
+                          int samples, double cosRot, double sinRot, DustParticleOptions dust) {
         int skip = 2;
         for (int i = 0; i < samples; i++) {
             double u = (i / (double) samples) * points;
@@ -134,36 +153,24 @@ public final class ClientCenterEmitter extends AutoParticleEmitters {
             int v1 = ((seg + 1) * skip) % points;
             double a0 = angleOffset + TAU * v0 / (double) points;
             double a1 = angleOffset + TAU * v1 / (double) points;
-            double x = Math.cos(a0) * radius + (Math.cos(a1) - Math.cos(a0)) * radius * frac;
-            double z = Math.sin(a0) * radius + (Math.sin(a1) - Math.sin(a0)) * radius * frac;
-            Vec3 rel = rotateY(new Vec3(x, 0.0, z), rotY).add(0.0, yOff, 0.0);
-            addDust(level, center, rel, dust);
+            double rx = Math.cos(a0) * radius + (Math.cos(a1) - Math.cos(a0)) * radius * frac;
+            double rz = Math.sin(a0) * radius + (Math.sin(a1) - Math.sin(a0)) * radius * frac;
+            
+            double relX = rx * cosRot - rz * sinRot;
+            double relZ = rx * sinRot + rz * cosRot;
+            
+            addDust(level, cx + relX, cy, cz + relZ, dust);
         }
     }
 
-    private void addDust(Level level, Vec3 center, Vec3 rel, DustParticleOptions dust) {
-        ClientParticleHelper.addForce(level, dust,
-                center.x + rel.x, center.y + rel.y, center.z + rel.z,
-                3, 0.2, 0.1, 0.2, 0.015);
+    private void addDust(Level level, double x, double y, double z, DustParticleOptions dust) {
+        ClientParticleHelper.addForce(level, dust, x, y, z, 3, 0.2, 0.1, 0.2, 0.015);
     }
 
-    private void addEnchant(Level level, Vec3 center, Vec3 rel) {
-        ClientParticleHelper.addForce(level, ParticleTypes.ENCHANT,
-                center.x + rel.x, center.y + rel.y, center.z + rel.z,
+    private void addEnchant(Level level, double x, double y, double z) {
+        ClientParticleHelper.addForce(level, ParticleTypes.ENCHANT, x, y, z,
                 0, random.nextGaussian() * 0.02, random.nextGaussian() * 0.02,
                 random.nextGaussian() * 0.02, 1.0);
-    }
-
-    private Vec3 rotateX(Vec3 p, double angle) {
-        double cos = Math.cos(angle);
-        double sin = Math.sin(angle);
-        return new Vec3(p.x, p.y * cos - p.z * sin, p.y * sin + p.z * cos);
-    }
-
-    private Vec3 rotateY(Vec3 p, double angle) {
-        double cos = Math.cos(angle);
-        double sin = Math.sin(angle);
-        return new Vec3(p.x * cos - p.z * sin, p.y, p.x * sin + p.z * cos);
     }
 
     private double easeScale(int tick) {

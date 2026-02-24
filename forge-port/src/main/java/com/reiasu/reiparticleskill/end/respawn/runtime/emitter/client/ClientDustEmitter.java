@@ -1,5 +1,3 @@
-// SPDX-License-Identifier: LGPL-3.0-only
-// Copyright (C) 2025 Reiasu
 package com.reiasu.reiparticleskill.end.respawn.runtime.emitter.client;
 
 import com.reiasu.reiparticlesapi.annotations.ReiAutoRegister;
@@ -14,14 +12,10 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 
-/**
- * Client-rendered ambient dust emitter.
- * Server syncs params only; client generates particles locally via addParticle().
- * Replaces per-particle sendForce() calls — zero particle network packets.
- */
+// torus-shaped dust cloud, rendered client-side
 @ReiAutoRegister
 public final class ClientDustEmitter extends AutoParticleEmitters {
-    public static final ResourceLocation CODEC_ID = new ResourceLocation("reiparticleskill", "client_dust");
+    public static final ResourceLocation CODEC_ID = ResourceLocation.fromNamespaceAndPath("reiparticleskill", "client_dust");
     private static final Vector3f MAIN_COLOR = new Vector3f(210f / 255f, 80f / 255f, 1.0f);
     private static final double TAU = Math.PI * 2.0;
     private static final int SCALE_TICKS = 24;
@@ -64,6 +58,10 @@ public final class ClientDustEmitter extends AutoParticleEmitters {
     }
 
     private void renderDust(Level level, Vec3 center, int tick) {
+        double cx = center.x;
+        double cy = center.y + yOffset;
+        double cz = center.z;
+
         double scale = easeScale(tick);
         double rotation = tick * rotateSpeed;
         double majorR = maxRadius * 0.6 * scale;
@@ -76,39 +74,46 @@ public final class ClientDustEmitter extends AutoParticleEmitters {
             tubeDist = tubeDist * tubeDist * tubeDist;
             double tubeR = minorR * (0.3 + 0.7 * tubeDist);
 
-            double ringX = (majorR + tubeR * Math.cos(poloidalAngle)) * Math.cos(toroidalAngle);
-            double ringZ = (majorR + tubeR * Math.cos(poloidalAngle)) * Math.sin(toroidalAngle);
-            double ringY = tubeR * Math.sin(poloidalAngle);
+            double cosPoloidal = Math.cos(poloidalAngle);
+            double sinPoloidal = Math.sin(poloidalAngle);
+            double cosToroidal = Math.cos(toroidalAngle);
+            double sinToroidal = Math.sin(toroidalAngle);
+
+            double ringX = (majorR + tubeR * cosPoloidal) * cosToroidal;
+            double ringZ = (majorR + tubeR * cosPoloidal) * sinToroidal;
+            double ringY = tubeR * sinPoloidal;
 
             double particlePhase = random.nextDouble() * 0.3 - 0.15;
-            double cos = Math.cos(rotation + particlePhase);
-            double sin = Math.sin(rotation + particlePhase);
+            double rotPhase = rotation + particlePhase;
+            double cos = Math.cos(rotPhase);
+            double sin = Math.sin(rotPhase);
+            
             double px = ringX * cos - ringZ * sin;
             double pz = ringX * sin + ringZ * cos;
 
             double tangentX = -Math.sin(toroidalAngle + rotation) * 0.02;
             double tangentZ =  Math.cos(toroidalAngle + rotation) * 0.02;
 
-            float size = Mth.clamp((float) randomBetween(sizeMin, sizeMax) * 2.0f, 0.2f, 4.0f);
+            float size = Mth.clamp((float) rng(sizeMin, sizeMax) * 2.0f, 0.2f, 4.0f);
+            
             ClientParticleHelper.addForce(level,
                     new DustParticleOptions(MAIN_COLOR, size),
-                    center.x + px, center.y + yOffset + ringY, center.z + pz,
+                    cx + px, cy + ringY, cz + pz,
                     3, 0.15 + Math.abs(tangentX), 0.12, 0.15 + Math.abs(tangentZ), 0.02);
         }
     }
 
-    private double randomBetween(double min, double max) {
-        double lo = Math.min(min, max);
-        double hi = Math.max(min, max);
-        return (Math.abs(hi - lo) < 1.0E-6) ? lo : lo + random.nextDouble() * (hi - lo);
+    private double rng(double min, double max) {
+        if (min >= max) return min;
+        return min + random.nextDouble() * (max - min);
     }
 
+    // TODO: maybe share this with the other emitters
     private double easeScale(int tick) {
-        if (tick <= 0) return 0.01;
         if (tick >= SCALE_TICKS) return 1.0;
+        if (tick <= 0) return 0.01;
         double t = tick / (double) SCALE_TICKS;
-        double inv = 1.0 - t;
-        return 0.01 + 0.99 * (1.0 - inv * inv * inv * inv * inv);
+        return 0.01 + 0.99 * (1.0 - Math.pow(1.0 - t, 5));
     }
 
     @Override

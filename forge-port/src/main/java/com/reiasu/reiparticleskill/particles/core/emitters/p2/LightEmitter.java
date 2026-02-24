@@ -1,5 +1,3 @@
-// SPDX-License-Identifier: LGPL-3.0-only
-// Copyright (C) 2025 Reiasu
 package com.reiasu.reiparticleskill.particles.core.emitters.p2;
 
 import com.reiasu.reiparticlesapi.annotations.ReiAutoRegister;
@@ -20,13 +18,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * Lightning-attenuation emitter that spawns branching particle bolts
- * outward from the emitter origin, matching the Fabric original's visual intent.
- */
 @ReiAutoRegister
  public final class LightEmitter extends AutoParticleEmitters {
-    public static final ResourceLocation CODEC_ID = new ResourceLocation("reiparticleskill", "light");
+    public static final ResourceLocation CODEC_ID = ResourceLocation.fromNamespaceAndPath("reiparticleskill", "light");
 
     private static final DustParticleOptions BOLT_COLOR =
             new DustParticleOptions(new Vector3f(0.85f, 0.92f, 1.0f), 0.55f);

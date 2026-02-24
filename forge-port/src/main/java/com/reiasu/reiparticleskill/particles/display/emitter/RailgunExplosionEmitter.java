@@ -1,5 +1,3 @@
-// SPDX-License-Identifier: LGPL-3.0-only
-// Copyright (C) 2025 Reiasu
 package com.reiasu.reiparticleskill.particles.display.emitter;
 
 import com.reiasu.reiparticlesapi.annotations.ReiAutoRegister;
@@ -20,13 +18,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * Railgun explosion emitter producing a disc wave and sphere ball of particles,
- * matching the Fabric original's visual intent.
- */
 @ReiAutoRegister
  public final class RailgunExplosionEmitter extends AutoParticleEmitters {
-    public static final ResourceLocation CODEC_ID = new ResourceLocation("reiparticleskill", "railgun_explosion");
+    public static final ResourceLocation CODEC_ID = ResourceLocation.fromNamespaceAndPath("reiparticleskill", "railgun_explosion");
 
     private static final DustParticleOptions WAVE_COLOR =
             new DustParticleOptions(new Vector3f(210f / 255f, 80f / 255f, 1.0f), 0.65f);

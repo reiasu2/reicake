@@ -1,5 +1,3 @@
-// SPDX-License-Identifier: LGPL-3.0-only
-// Copyright (C) 2025 Reiasu
 package com.reiasu.reiparticleskill.util.geom;
 
 import java.util.ArrayList;
@@ -13,18 +11,10 @@ public final class Math3DUtil {
         return Math.sqrt(x * x + y * y + z * z);
     }
 
-    public static double clamp(double value, double min, double max) {
-        return Math.max(min, Math.min(max, value));
-    }
-
-    public static double lerp(double from, double to, double alpha) {
-        return from + (to - from) * alpha;
-    }
-
     public static int colorOf(int r, int g, int b) {
-        int rr = (int) clamp(r, 0, 255);
-        int gg = (int) clamp(g, 0, 255);
-        int bb = (int) clamp(b, 0, 255);
+        int rr = (int) Math.clamp(r, 0, 255);
+        int gg = (int) Math.clamp(g, 0, 255);
+        int bb = (int) Math.clamp(b, 0, 255);
         return (rr << 16) | (gg << 8) | bb;
     }
 

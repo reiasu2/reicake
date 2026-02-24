@@ -1,5 +1,3 @@
-// SPDX-License-Identifier: LGPL-3.0-only
-// Copyright (C) 2025 Reiasu
 package com.reiasu.reiparticleskill.util.geom;
 
 import java.util.ArrayList;
@@ -68,15 +66,6 @@ public final class PointsBuilder {
     public PointsBuilder pointsOnEach(Consumer<RelativeLocation> action) {
         for (RelativeLocation point : points) {
             action.accept(point);
-        }
-        return this;
-    }
-
-    @Deprecated
-    public PointsBuilder addWith(Function<Math3DUtil, Collection<RelativeLocation>> generator) {
-        Collection<RelativeLocation> generated = generator.apply(null);
-        if (generated != null) {
-            points.addAll(generated);
         }
         return this;
     }

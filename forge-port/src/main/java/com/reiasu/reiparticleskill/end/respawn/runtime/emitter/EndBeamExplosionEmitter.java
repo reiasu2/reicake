@@ -1,5 +1,3 @@
-// SPDX-License-Identifier: LGPL-3.0-only
-// Copyright (C) 2025 Reiasu
 package com.reiasu.reiparticleskill.end.respawn.runtime.emitter;
 
 import com.reiasu.reiparticleskill.util.ParticleHelper;
@@ -91,15 +89,7 @@ public final class EndBeamExplosionEmitter extends TimedRespawnEmitter {
         return this;
     }
 
-    /**
-     * Fibonacci sphere (golden angle) burst distribution with gravity pull-back.
-     * Instead of a flat ring burst, particles are distributed on a sphere using
-     * the golden angle (π(3-√5)) for uniform coverage. After the initial burst,
-     * gravity pulls particles downward creating an arching firework effect.
-     *
-     * @author Reiasu
-     */
-    @Override
+        @Override
     protected int emit(ServerLevel level, Vec3 center, int tick) {
         Vec3 origin = center.add(anchorOffset);
         int emitted = 0;

@@ -1,5 +1,3 @@
-// SPDX-License-Identifier: LGPL-3.0-only
-// Copyright (C) 2025 Reiasu
 package com.reiasu.reiparticleskill.particles.preview.styles;
 
 import com.reiasu.reiparticlesapi.annotations.ReiAutoRegister;
@@ -21,19 +19,16 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
+import net.minecraft.util.Mth;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import net.minecraft.util.Mth;
 
-/**
- * End dust style that renders randomly positioned dust particles within a radius,
- * with rotation, status-driven alpha fade, and scale animation.
- * Color: purple (210, 80, 255). Server-side port of the Fabric original.
- */
 @ReiAutoRegister
  public final class EndDustStyle extends ParticleGroupStyle {
-    public static final ResourceLocation REGISTRY_KEY = new ResourceLocation("reiparticleskill", "end_dust_style");
+    public static final ResourceLocation REGISTRY_KEY = ResourceLocation.fromNamespaceAndPath("reiparticleskill", "end_dust_style");
     private static final DustParticleOptions DUST_COLOR =
             new DustParticleOptions(new Vector3f(210f / 255f, 80f / 255f, 1.0f), 0.55f);
 
@@ -114,7 +109,7 @@ import java.util.UUID;
         // Status handling
         if (status == 2) {
             statusTick++;
-            float fadeAlpha = GraphMathHelper.lerp(
+            float fadeAlpha = Mth.lerp(
                     1.0f - (float) statusTick / 10.0f, 0.0f, 1.0f);
             if (fadeAlpha <= 0.02f || statusTick > 10) {
                 super.remove();

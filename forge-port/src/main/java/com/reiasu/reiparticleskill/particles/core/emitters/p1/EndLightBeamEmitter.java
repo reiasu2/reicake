@@ -1,5 +1,3 @@
-// SPDX-License-Identifier: LGPL-3.0-only
-// Copyright (C) 2025 Reiasu
 package com.reiasu.reiparticleskill.particles.core.emitters.p1;
 
 import com.reiasu.reiparticlesapi.annotations.ReiAutoRegister;
@@ -17,14 +15,9 @@ import org.joml.Vector3f;
 
 import java.util.UUID;
 
-/**
- * End light beam emitter that travels from source toward a target position,
- * spawning a trail of particles. Used in end respawn sequences.
- * Server-side port of the Fabric original.
- */
 @ReiAutoRegister
  public final class EndLightBeamEmitter extends AutoParticleEmitters {
-    public static final ResourceLocation CODEC_ID = new ResourceLocation("reiparticleskill", "end_light_beam");
+    public static final ResourceLocation CODEC_ID = ResourceLocation.fromNamespaceAndPath("reiparticleskill", "end_light_beam");
 
     private static final DustParticleOptions BEAM_COLOR =
             new DustParticleOptions(new Vector3f(210f / 255f, 80f / 255f, 1.0f), 0.6f);

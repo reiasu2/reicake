@@ -1,5 +1,3 @@
-// SPDX-License-Identifier: LGPL-3.0-only
-// Copyright (C) 2025 Reiasu
 package com.reiasu.reiparticleskill.display.group.impl.formation;
 
 import com.reiasu.reiparticlesapi.utils.RelativeLocation;
@@ -173,7 +171,7 @@ public final class HugeSwordFormation extends ServerOnlyDisplayGroup {
 
     private void playSwordSound() {
         Level level = getWorld();
-        if (!(level instanceof ServerLevel serverLevel) || !SkillSoundEvents.SWORD_FORMATION.isPresent()) {
+        if (!(level instanceof ServerLevel serverLevel) || !SkillSoundEvents.SWORD_FORMATION.isBound()) {
             return;
         }
         Vec3 pos = getPos();

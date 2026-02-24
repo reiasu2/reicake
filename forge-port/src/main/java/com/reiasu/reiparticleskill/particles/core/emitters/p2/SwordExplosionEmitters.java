@@ -1,5 +1,3 @@
-// SPDX-License-Identifier: LGPL-3.0-only
-// Copyright (C) 2025 Reiasu
 package com.reiasu.reiparticleskill.particles.core.emitters.p2;
 
 import com.reiasu.reiparticlesapi.annotations.ReiAutoRegister;
@@ -20,14 +18,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * Sword explosion emitter producing three layers of particles:
- * flash (sign=0), spark (sign=1), and ring (sign=2).
- * Matches the visual intent of the Fabric original.
- */
 @ReiAutoRegister
  public final class SwordExplosionEmitters extends AutoParticleEmitters {
-    public static final ResourceLocation CODEC_ID = new ResourceLocation("reiparticleskill", "sword_explosion");
+    public static final ResourceLocation CODEC_ID = ResourceLocation.fromNamespaceAndPath("reiparticleskill", "sword_explosion");
 
     private final RandomSource random = RandomSource.create();
     private final List<ExplosionParticle> particles = new ArrayList<>();

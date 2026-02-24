@@ -1,5 +1,3 @@
-// SPDX-License-Identifier: LGPL-3.0-only
-// Copyright (C) 2025 Reiasu
 package com.reiasu.reiparticleskill.particles.core.emitters.p1;
 
 import com.reiasu.reiparticlesapi.annotations.ReiAutoRegister;
@@ -25,15 +23,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * Emitter that spawns particles on a discrete circle and moves them
- * upward toward the emitter center, simulating pillar collection.
- * Also spawns vertical pillar lines during the first few ticks.
- * Server-side port of the Fabric original.
- */
 @ReiAutoRegister
  public final class CollectPillarsEmitters extends AutoParticleEmitters {
-    public static final ResourceLocation CODEC_ID = new ResourceLocation("reiparticleskill", "collect_pillars");
+    public static final ResourceLocation CODEC_ID = ResourceLocation.fromNamespaceAndPath("reiparticleskill", "collect_pillars");
 
     private static final DustParticleOptions PILLAR_COLOR =
             new DustParticleOptions(new Vector3f(0.45f, 0.15f, 0.75f), 0.5f);
@@ -193,7 +185,7 @@ import java.util.UUID;
                     ? p.maxAge - p.age
                     : Math.min(p.age, 20);
             float ageProgress = Mth.clamp((float) ageForAlpha / 20.0f, 0.0f, 1.0f);
-            float alpha = GraphMathHelper.lerp(ageProgress, 0.0f, 1.0f);
+            float alpha = Mth.lerp(ageProgress, 0.0f, 1.0f);
             if (alpha < 0.02f) continue;
 
             if (p.sign == 0) {
@@ -205,9 +197,9 @@ import java.util.UUID;
                         ? Mth.clamp(hLen / p.genLength, 0.0, 1.0)
                         : 0.0;
 
-                double lerpVertical = GraphMathHelper.lerp(
+                double lerpVertical = Mth.lerp(
                         (float) progress, verticalMaxSpeedMultiplier, verticalMinSpeedMultiplier);
-                double lerpHorizontal = GraphMathHelper.lerp(
+                double lerpHorizontal = Mth.lerp(
                         (float) progress, horizontalMinSpeedMultiplier, horizontalMaxSpeedMultiplier);
 
                 Vec3 dir = rel.normalize();

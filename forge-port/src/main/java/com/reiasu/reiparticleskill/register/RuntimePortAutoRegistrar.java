@@ -1,5 +1,3 @@
-// SPDX-License-Identifier: LGPL-3.0-only
-// Copyright (C) 2025 Reiasu
 package com.reiasu.reiparticleskill.register;
 
 import com.reiasu.reiparticlesapi.annotations.ReiAutoRegister;
@@ -20,20 +18,6 @@ import java.lang.reflect.Modifier;
 import java.util.Collection;
 import java.util.function.Function;
 
-/**
- * Scans for classes annotated with {@link ReiAutoRegister} and automatically
- * registers emitter codecs and style providers, removing the need for manual
- * registration in {@code ReiParticleSkillForge.registerRuntimePorts()}.
- * <p>
- * Conventions:
- * <ul>
- *   <li>Emitters: must have {@code public static final ResourceLocation CODEC_ID}
- *       and {@code public static T decode(FriendlyByteBuf)}</li>
- *   <li>Styles: must have {@code public static final ResourceLocation REGISTRY_KEY}
- *       and an inner class named {@code Provider} that
- *       implements {@link ParticleStyleProvider}</li>
- * </ul>
- */
 public final class RuntimePortAutoRegistrar {
 
     private RuntimePortAutoRegistrar() {

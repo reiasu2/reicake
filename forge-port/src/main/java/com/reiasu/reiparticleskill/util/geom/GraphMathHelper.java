@@ -1,17 +1,7 @@
-// SPDX-License-Identifier: LGPL-3.0-only
-// Copyright (C) 2025 Reiasu
 package com.reiasu.reiparticleskill.util.geom;
 
 public final class GraphMathHelper {
     private GraphMathHelper() {
-    }
-
-    public static float lerp(float alpha, float from, float to) {
-        return from + (to - from) * alpha;
-    }
-
-    public static double lerp(double alpha, double from, double to) {
-        return from + (to - from) * alpha;
     }
 
     public static double inverseLerp(double value, double min, double max) {
@@ -22,7 +12,7 @@ public final class GraphMathHelper {
     }
 
     public static double smoothstep(double edge0, double edge1, double x) {
-        double t = Math3DUtil.clamp(inverseLerp(x, edge0, edge1), 0.0, 1.0);
+        double t = Math.clamp(inverseLerp(x, edge0, edge1), 0.0, 1.0);
         return t * t * (3.0 - 2.0 * t);
     }
 }

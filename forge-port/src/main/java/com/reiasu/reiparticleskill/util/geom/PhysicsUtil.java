@@ -1,6 +1,6 @@
-// SPDX-License-Identifier: LGPL-3.0-only
-// Copyright (C) 2025 Reiasu
 package com.reiasu.reiparticleskill.util.geom;
+
+import net.minecraft.util.Mth;
 
 public final class PhysicsUtil {
     private PhysicsUtil() {
@@ -11,10 +11,10 @@ public final class PhysicsUtil {
     }
 
     public static RelativeLocation steer(RelativeLocation velocity, RelativeLocation desired, double blend) {
-        double clampedBlend = Math3DUtil.clamp(blend, 0.0, 1.0);
-        velocity.setX(Math3DUtil.lerp(velocity.getX(), desired.getX(), clampedBlend));
-        velocity.setY(Math3DUtil.lerp(velocity.getY(), desired.getY(), clampedBlend));
-        velocity.setZ(Math3DUtil.lerp(velocity.getZ(), desired.getZ(), clampedBlend));
+        double clampedBlend = Math.clamp(blend, 0.0, 1.0);
+        velocity.setX(Mth.lerp(clampedBlend, velocity.getX(), desired.getX()));
+        velocity.setY(Mth.lerp(clampedBlend, velocity.getY(), desired.getY()));
+        velocity.setZ(Mth.lerp(clampedBlend, velocity.getZ(), desired.getZ()));
         return velocity;
     }
 

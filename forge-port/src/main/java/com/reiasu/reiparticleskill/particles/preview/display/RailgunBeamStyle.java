@@ -1,5 +1,3 @@
-// SPDX-License-Identifier: LGPL-3.0-only
-// Copyright (C) 2025 Reiasu
 package com.reiasu.reiparticleskill.particles.preview.display;
 
 import com.reiasu.reiparticlesapi.annotations.ReiAutoRegister;
@@ -27,14 +25,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-/**
- * Railgun beam style that renders a long beam of particles along a direction,
- * with hexagonal vertex anchors and a rotating central column.
- * Server-side port of the Fabric original.
- */
 @ReiAutoRegister
  public final class RailgunBeamStyle extends ParticleGroupStyle {
-    public static final ResourceLocation REGISTRY_KEY = new ResourceLocation("reiparticleskill", "railgun_beam_style");
+    public static final ResourceLocation REGISTRY_KEY = ResourceLocation.fromNamespaceAndPath("reiparticleskill", "railgun_beam_style");
     private static final DustParticleOptions BEAM_COLOR =
             new DustParticleOptions(new Vector3f(210f / 255f, 80f / 255f, 1.0f), 0.75f);
     private static final DustParticleOptions GLOW_COLOR =

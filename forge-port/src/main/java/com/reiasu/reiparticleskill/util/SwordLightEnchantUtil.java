@@ -1,5 +1,3 @@
-// SPDX-License-Identifier: LGPL-3.0-only
-// Copyright (C) 2025 Reiasu
 package com.reiasu.reiparticleskill.util;
 
 import com.reiasu.reiparticlesapi.barrages.BarrageOption;
@@ -113,7 +111,7 @@ public final class SwordLightEnchantUtil {
     }
 
     private static void playFormationSound(ServerLevel level, Vec3 pos) {
-        if (level == null || pos == null || !SkillSoundEvents.SWORD_FORMATION.isPresent()) {
+        if (level == null || pos == null || !SkillSoundEvents.SWORD_FORMATION.isBound()) {
             return;
         }
         level.playSound(

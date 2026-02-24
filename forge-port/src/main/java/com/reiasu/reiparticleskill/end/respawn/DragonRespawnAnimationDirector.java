@@ -1,5 +1,3 @@
-// SPDX-License-Identifier: LGPL-3.0-only
-// Copyright (C) 2025 Reiasu
 package com.reiasu.reiparticleskill.end.respawn;
 
 import com.reiasu.reiparticleskill.end.respawn.runtime.emitter.CollectEnderPowerEmitter;
@@ -19,36 +17,27 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
 public final class DragonRespawnAnimationDirector {
-    private static final int PILLAR_EVENT_DELAY_TICKS = 39;
     private static final Vec3 ANCHOR_OFFSET = new Vec3(0.0, 130.5, 0.0);
     private static final double GRAVITY_RANGE = 32.0;
     private static final double CRYSTAL_SEARCH_RADIUS = 96.0;
-    private static final double PILLAR_RING_RADIUS = 56.0;
-    private static final double PILLAR_RING_Y_OFFSET = 80.0;
 
     private final ClientEmitterFactory clientEmitters = new ClientEmitterFactory();
     private final DragonGravityTracker gravityTracker = new DragonGravityTracker();
+    private final PillarPulseScheduler pulseScheduler = new PillarPulseScheduler();
     private final List<RespawnEmitter> activeEmitters = new ArrayList<>();
     private final Set<RespawnEmitter> pulseScopedEmitters = Collections.newSetFromMap(new IdentityHashMap<>());
     private final List<PillarCrafter> activePillarCrafters = new ArrayList<>();
     private final RandomSource random = RandomSource.create();
-    private final Map<UUID, BlockPos> crystalBeamTargets = new HashMap<>();
-    private final Map<BlockPos, PendingPillarPulse> pendingPillarPulseTicks = new HashMap<>();
     private EndRespawnPhase activePhase;
     private ServerLevel activeLevel;
     private boolean active;
-    private int pillarPulseIndex;
-    private long lastPillarPulseTick = Long.MIN_VALUE;
 
     public void setup(ServerLevel level, Vec3 center) {
         if (active) {
@@ -70,9 +59,7 @@ public final class DragonRespawnAnimationDirector {
             }
             activePhase = phase;
             if (phase != EndRespawnPhase.SUMMON_PILLARS) {
-                crystalBeamTargets.clear();
-                pendingPillarPulseTicks.clear();
-                lastPillarPulseTick = Long.MIN_VALUE;
+                pulseScheduler.clear();
             }
             if (phase == EndRespawnPhase.BEFORE_END_WAITING) {
                 activeEmitters.removeIf(pulseScopedEmitters::contains);
@@ -86,7 +73,9 @@ public final class DragonRespawnAnimationDirector {
         }
 
         if (phase == EndRespawnPhase.SUMMON_PILLARS) {
-            maybeTriggerPillarPulse(level, center, phaseTick);
+            for (PillarPulseScheduler.PulseResult pulse : pulseScheduler.tick(level, center, phaseTick)) {
+                handleOncePillars(level, center, pulse.pillarCenter(), pulse.preferredCrystalId());
+            }
         }
         if (phase == EndRespawnPhase.END && phaseTick == 0) {
             handleEnd(level, center);
@@ -118,11 +107,8 @@ public final class DragonRespawnAnimationDirector {
         activeEmitters.clear();
         pulseScopedEmitters.clear();
         activePillarCrafters.clear();
-        pillarPulseIndex = 0;
-        crystalBeamTargets.clear();
-        pendingPillarPulseTicks.clear();
+        pulseScheduler.clear();
         gravityTracker.clear();
-        lastPillarPulseTick = Long.MIN_VALUE;
     }
 
     public String debugState() {
@@ -132,7 +118,7 @@ public final class DragonRespawnAnimationDirector {
                 + ", emitters=" + activeEmitters.size()
                 + ", pulse_emitters=" + pulseScopedEmitters.size()
                 + ", pillar_crafters=" + activePillarCrafters.size()
-                + ", pending_pulses=" + pendingPillarPulseTicks.size()
+                + ", pulse_scheduler=active"
                 + ", no_gravity_dragons=" + gravityTracker.trackedCount();
     }
 
@@ -142,7 +128,7 @@ public final class DragonRespawnAnimationDirector {
 
     private void handleOncePillars(ServerLevel level, Vec3 center, Vec3 pillarCenter, UUID preferredCrystalId) {
         Vec3 anchor = pillarCenter == null ? center : pillarCenter;
-        EndCrystal crystal = resolvePulseCrystal(level, center, anchor, preferredCrystalId);
+        EndCrystal crystal = EndDragonFightHelper.resolvePulseCrystal(level, center, anchor, preferredCrystalId, CRYSTAL_SEARCH_RADIUS);
         Vec3 start = anchor;
         Vec3 target = Vec3.ZERO;
         if (crystal != null) {
@@ -178,7 +164,7 @@ public final class DragonRespawnAnimationDirector {
                 .setSpeed(1.5);
         activeEmitters.add(burst);
         pulseScopedEmitters.add(burst);
-        pillarPulseIndex++;
+        pulseScheduler.nextPulseIndex();
     }
 
     public void handleEnd(ServerLevel level, Vec3 center) {
@@ -220,8 +206,7 @@ public final class DragonRespawnAnimationDirector {
         activeEmitters.clear();
         pulseScopedEmitters.clear();
         activePillarCrafters.clear();
-        crystalBeamTargets.clear();
-        pendingPillarPulseTicks.clear();
+        pulseScheduler.clear();
         switch (phase) {
             case START -> {
                 CollectEnderPowerEmitter emitter = new CollectEnderPowerEmitter(600)
@@ -257,112 +242,6 @@ public final class DragonRespawnAnimationDirector {
             }
             case END -> handleEnd(level, center);
         }
-    }
-
-    private void maybeTriggerPillarPulse(ServerLevel level, Vec3 center, long phaseTick) {
-        List<EndCrystal> crystals = level.getEntitiesOfClass(
-                EndCrystal.class,
-                new AABB(center, center).inflate(CRYSTAL_SEARCH_RADIUS),
-                EndCrystal::isAlive
-        );
-        Set<UUID> seen = new HashSet<>();
-        for (EndCrystal crystal : crystals) {
-            UUID uuid = crystal.getUUID();
-            seen.add(uuid);
-            BlockPos beam = crystal.getBeamTarget();
-            if (beam == null) {
-                continue;
-            }
-            BlockPos prev = crystalBeamTargets.put(uuid, beam.immutable());
-            if (prev == null || !prev.equals(beam)) {
-                pendingPillarPulseTicks.put(beam.immutable(), new PendingPillarPulse(phaseTick + PILLAR_EVENT_DELAY_TICKS, uuid));
-            }
-        }
-        crystalBeamTargets.keySet().removeIf(uuid -> !seen.contains(uuid));
-
-        boolean fired = false;
-        Iterator<Map.Entry<BlockPos, PendingPillarPulse>> pendingIterator = pendingPillarPulseTicks.entrySet().iterator();
-        while (pendingIterator.hasNext()) {
-            Map.Entry<BlockPos, PendingPillarPulse> pending = pendingIterator.next();
-            PendingPillarPulse pulse = pending.getValue();
-            if (pulse.triggerTick() > phaseTick) {
-                continue;
-            }
-            handleOncePillars(level, center, Vec3.atCenterOf(pending.getKey()), pulse.crystalId());
-            pendingIterator.remove();
-            fired = true;
-        }
-        if (fired) {
-            lastPillarPulseTick = phaseTick;
-            return;
-        }
-
-        // Prefer strict "beam-target changed" triggering. Fallback is only used once
-        // when no beam targets are visible yet to avoid missing the first pulse.
-        if (!pendingPillarPulseTicks.isEmpty()) {
-            return;
-        }
-        if (!crystalBeamTargets.isEmpty()) {
-            return;
-        }
-        if (lastPillarPulseTick != Long.MIN_VALUE) {
-            return;
-        }
-        Vec3 fallback = chooseFallbackPillarTarget(crystals, center);
-        handleOncePillars(level, center, fallback);
-        lastPillarPulseTick = phaseTick;
-    }
-
-    private Vec3 chooseFallbackPillarTarget(List<EndCrystal> crystals, Vec3 center) {
-        if (!crystals.isEmpty()) {
-            EndCrystal crystal = crystals.get(Math.floorMod(pillarPulseIndex, crystals.size()));
-            BlockPos beam = crystal.getBeamTarget();
-            if (beam != null) {
-                return Vec3.atCenterOf(beam);
-            }
-            return crystal.position();
-        }
-        double angle = (Math.PI * 2.0 * (pillarPulseIndex % 10)) / 10.0;
-        return center.add(Math.cos(angle) * PILLAR_RING_RADIUS, PILLAR_RING_Y_OFFSET, Math.sin(angle) * PILLAR_RING_RADIUS);
-    }
-
-    private EndCrystal resolvePulseCrystal(ServerLevel level, Vec3 center, Vec3 anchor, UUID preferredCrystalId) {
-        if (preferredCrystalId != null) {
-            net.minecraft.world.entity.Entity entity = level.getEntity(preferredCrystalId);
-            if (entity instanceof EndCrystal preferred && preferred.isAlive()) {
-                return preferred;
-            }
-        }
-
-        List<EndCrystal> nearAnchor = level.getEntitiesOfClass(
-                EndCrystal.class,
-                new AABB(anchor, anchor).inflate(8.0),
-                EndCrystal::isAlive
-        );
-        EndCrystal closestNearAnchor = nearestCrystalTo(anchor, nearAnchor);
-        if (closestNearAnchor != null) {
-            return closestNearAnchor;
-        }
-
-        List<EndCrystal> aroundPortal = level.getEntitiesOfClass(
-                EndCrystal.class,
-                new AABB(center, center).inflate(CRYSTAL_SEARCH_RADIUS),
-                EndCrystal::isAlive
-        );
-        return nearestCrystalTo(anchor, aroundPortal);
-    }
-
-    private EndCrystal nearestCrystalTo(Vec3 pos, List<EndCrystal> crystals) {
-        EndCrystal best = null;
-        double bestDistance = Double.MAX_VALUE;
-        for (EndCrystal candidate : crystals) {
-            double d = candidate.position().distanceToSqr(pos);
-            if (d < bestDistance) {
-                bestDistance = d;
-                best = candidate;
-            }
-        }
-        return best;
     }
 
     private int tickEmitters(ServerLevel level, Vec3 center) {
@@ -435,63 +314,4 @@ public final class DragonRespawnAnimationDirector {
         return lo + random.nextDouble() * (hi - lo);
     }
 
-    private record PendingPillarPulse(long triggerTick, UUID crystalId) {
-    }
-
-    private static final class PillarCrafter {
-        private static final int CRAFT_INTERVAL = 15;
-        private static final int MAX_TICKS = 500;
-
-        private final Vec3 start;
-        private Vec3 target;
-        private final UUID crystalId;
-        private int tick;
-
-        private PillarCrafter(Vec3 start, Vec3 target, UUID crystalId) {
-            this.start = start;
-            this.target = target;
-            this.crystalId = crystalId;
-        }
-
-        private Vec3 start() {
-            return start;
-        }
-
-        private boolean shouldCraftNow() {
-            return tick % CRAFT_INTERVAL == 0;
-        }
-
-        private void advanceTick() {
-            tick++;
-        }
-
-        private boolean expired() {
-            return tick > MAX_TICKS;
-        }
-
-        private boolean shouldCancel(ServerLevel level, EndRespawnPhase phase) {
-            if (phase == EndRespawnPhase.BEFORE_END_WAITING || phase == EndRespawnPhase.END) {
-                return true;
-            }
-            if (crystalId == null) {
-                return true;
-            }
-            net.minecraft.world.entity.Entity entity = level.getEntity(crystalId);
-            if (!(entity instanceof EndCrystal crystal) || !crystal.isAlive()) {
-                return true;
-            }
-            return crystal.getBeamTarget() == null;
-        }
-
-        private Vec3 resolveTarget(ServerLevel level) {
-            if (crystalId == null) {
-                return target;
-            }
-            net.minecraft.world.entity.Entity entity = level.getEntity(crystalId);
-            if (entity instanceof EndCrystal crystal && crystal.isAlive()) {
-                target = crystal.position().add(0.0, 1.7, 0.0);
-            }
-            return target;
-        }
-    }
 }

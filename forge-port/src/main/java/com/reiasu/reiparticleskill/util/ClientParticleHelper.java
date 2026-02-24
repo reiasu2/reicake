@@ -1,22 +1,9 @@
-// SPDX-License-Identifier: LGPL-3.0-only
-// Copyright (C) 2025 Reiasu
 package com.reiasu.reiparticleskill.util;
 
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
 
-/**
- * Client-side equivalent of {@link ParticleHelper}.
- * Spawns particles locally via {@link Level#addAlwaysVisibleParticle} —
- * zero network packets, zero server cost.
- * <p>
- * Replicates the vanilla {@code ClientboundLevelParticlesPacket} behavior:
- * <ul>
- *   <li>{@code count > 0}: spawn {@code count} particles with Gaussian offsets</li>
- *   <li>{@code count == 0}: spawn 1 particle with exact velocity from dist params</li>
- * </ul>
- */
 public final class ClientParticleHelper {
 
     private static final RandomSource RANDOM = RandomSource.create();

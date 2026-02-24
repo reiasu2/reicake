@@ -1,10 +1,8 @@
-// SPDX-License-Identifier: LGPL-3.0-only
-// Copyright (C) 2025 Reiasu
 package com.reiasu.reiparticleskill.datagen;
 
 import com.reiasu.reiparticleskill.ReiParticleSkillForge;
 import net.minecraft.data.PackOutput;
-import net.minecraftforge.common.data.LanguageProvider;
+import net.neoforged.neoforge.common.data.LanguageProvider;
 
 public final class SkillLanguageProvider extends LanguageProvider {
     private final String locale;

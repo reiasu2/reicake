@@ -1,0 +1,35 @@
+package com.reiasu.reiparticlesapi.particles.impl;
+
+import com.reiasu.reiparticlesapi.particles.ControllableParticleEffect;
+import com.reiasu.reiparticlesapi.particles.ReiModParticles;
+import net.minecraft.core.particles.ParticleType;
+import java.util.UUID;
+
+public class ControllableFireworkEffect implements ControllableParticleEffect {
+    private UUID uuid;
+    private final boolean faceToPlayer;
+
+    public ControllableFireworkEffect(UUID uuid, boolean faceToPlayer) {
+        this.uuid = uuid;
+        this.faceToPlayer = faceToPlayer;
+    }
+
+    public ControllableFireworkEffect(UUID uuid, boolean faceToPlayer, int ignored, Object ignored2) {
+        this(uuid, faceToPlayer);
+    }
+
+    @Override
+    public UUID getControlUUID() { return uuid; }
+
+    @Override
+    public void setControlUUID(UUID uuid) { this.uuid = uuid; }
+
+    @Override
+    public ControllableFireworkEffect clone() {
+        return new ControllableFireworkEffect(UUID.randomUUID(), faceToPlayer);
+    }
+
+    @Override public boolean getFaceToPlayer() { return faceToPlayer; }
+
+    @Override public ParticleType<?> getType() { return ReiModParticles.CONTROLLABLE_FIREWORK.get(); }
+}

@@ -1,5 +1,3 @@
-// SPDX-License-Identifier: LGPL-3.0-only
-// Copyright (C) 2025 Reiasu
 package com.reiasu.reiparticleskill.end.respawn;
 
 import net.minecraft.server.level.ServerLevel;
@@ -13,10 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-/**
- * Tracks ender dragons whose gravity has been temporarily disabled
- * and restores it after a configured number of ticks.
- */
 final class DragonGravityTracker {
 
     private final Map<UUID, Long> restoreTicks = new HashMap<>();

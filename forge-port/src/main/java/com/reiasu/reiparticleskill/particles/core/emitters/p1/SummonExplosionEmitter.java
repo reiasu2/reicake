@@ -1,5 +1,3 @@
-// SPDX-License-Identifier: LGPL-3.0-only
-// Copyright (C) 2025 Reiasu
 package com.reiasu.reiparticleskill.particles.core.emitters.p1;
 
 import com.reiasu.reiparticlesapi.network.particle.emitters.AutoParticleEmitters;
@@ -12,12 +10,8 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.UUID;
 
-/**
- * Summon explosion emitter stub. The Fabric original is an empty placeholder
- * registered via ReiAutoRegister. Preserved for API compatibility.
- */
 public final class SummonExplosionEmitter extends AutoParticleEmitters {
-    public static final ResourceLocation CODEC_ID = new ResourceLocation("reiparticleskill", "summon_explosion");
+    public static final ResourceLocation CODEC_ID = ResourceLocation.fromNamespaceAndPath("reiparticleskill", "summon_explosion");
 
     public SummonExplosionEmitter(Vec3 pos, Level world) {
         Vec3 spawn = pos == null ? Vec3.ZERO : pos;
@@ -49,6 +43,6 @@ public final class SummonExplosionEmitter extends AutoParticleEmitters {
 
     @Override
     protected void emitTick() {
-        // Stub — no emission logic in the original
+        // Stub --” no emission logic in the original
     }
 }

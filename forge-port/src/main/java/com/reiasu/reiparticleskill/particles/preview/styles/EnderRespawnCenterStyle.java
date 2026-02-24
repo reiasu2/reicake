@@ -1,5 +1,3 @@
-// SPDX-License-Identifier: LGPL-3.0-only
-// Copyright (C) 2025 Reiasu
 package com.reiasu.reiparticleskill.particles.preview.styles;
 
 import com.reiasu.reiparticlesapi.annotations.ReiAutoRegister;
@@ -27,15 +25,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-/**
- * Ender respawn center style that renders concentric Fourier-series glyphs
- * and a large outer circle with enchantment particles.
- * Features multiple rotating layers with different speeds and scale-in animation.
- * Color: purple (210, 80, 255). Server-side port of the Fabric original.
- */
 @ReiAutoRegister
  public final class EnderRespawnCenterStyle extends ParticleGroupStyle {
-    public static final ResourceLocation REGISTRY_KEY = new ResourceLocation("reiparticleskill", "ender_respawn_center_style");
+    public static final ResourceLocation REGISTRY_KEY = ResourceLocation.fromNamespaceAndPath("reiparticleskill", "ender_respawn_center_style");
     private static final DustParticleOptions CENTER_COLOR =
             new DustParticleOptions(new Vector3f(210f / 255f, 80f / 255f, 1.0f), 0.6f);
     private static final DustParticleOptions GLYPH_COLOR =
